@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane prefHeight="600.0" prefWidth="1152.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.ryan.yowg.RootController">
+    <top>
+        <MenuBar prefHeight="27.0" prefWidth="600.0" style="-fx-background-color: white;" BorderPane.alignment="CENTER">
+            <menus>
+                <Menu mnemonicParsing="false" text="Konfigurasi">
+                    <items>
+                        <MenuItem mnemonicParsing="false" text="Pilih file konfigurasi" />
+                    </items>
+                </Menu>
+            </menus>
+        </MenuBar>
+    </top>
+</BorderPane>
