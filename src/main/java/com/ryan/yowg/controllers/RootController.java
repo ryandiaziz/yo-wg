@@ -1,4 +1,4 @@
-package com.ryan.yowg;
+package com.ryan.yowg.controllers;
 
 public class RootController {
 }
