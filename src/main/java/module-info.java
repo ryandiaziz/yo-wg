@@ -2,6 +2,7 @@ module com.ryan.yowg {
     requires javafx.controls;
     requires javafx.fxml;
     requires typesafe.config;
+    requires java.sql;
 
 
     opens com.ryan.yowg to javafx.fxml;

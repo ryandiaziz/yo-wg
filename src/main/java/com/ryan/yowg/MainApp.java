@@ -1,19 +1,32 @@
 package com.ryan.yowg;
 
+import com.ryan.yowg.controllers.AccessController;
 import com.ryan.yowg.controllers.RootController;
+import com.ryan.yowg.controllers.WireguardController;
+import com.ryan.yowg.dao.DatabaseSetup;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 public class MainApp extends Application {
     private Stage primaryStage;
     private BorderPane rootLayout;
 
+    public Stage getPrimaryStage() {
+        return primaryStage;
+    }
+
     @Override
     public void start(Stage stage){
+        // Setup database
+        DatabaseSetup.createTable();
+
         this.primaryStage = stage;
         this.primaryStage.setResizable(false);
         showRootPage();
@@ -22,12 +35,11 @@ public class MainApp extends Application {
 
     public void showRootPage() {
         try {
-            // Load root layout from fxml file.
+            RootController rootController = new RootController(this);
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(MainApp.class.getResource("views/root-view.fxml"));
+            loader.setControllerFactory(param -> rootController);
             rootLayout = loader.load();
-
-            RootController rootController = loader.getController();
 
             // Show the scene containing the root layout.
             Scene scene = new Scene(rootLayout);
@@ -44,6 +56,68 @@ public class MainApp extends Application {
             loader.setLocation(MainApp.class.getResource("views/main-view.fxml"));
             VBox mainPage = loader.load();
             rootLayout.setCenter(mainPage);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void showAccessMenuPage() {
+        try {
+            AccessController accessController = new AccessController(this);
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(MainApp.class.getResource("views/access-view.fxml"));
+            loader.setControllerFactory(param -> accessController);
+            AnchorPane mainPage = loader.load();
+            rootLayout.setCenter(mainPage);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void showWireguardMenuPage() {
+        try {
+            WireguardController wireguardController = new WireguardController(this);
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(MainApp.class.getResource("views/wireguards-view.fxml"));
+            loader.setControllerFactory(param -> wireguardController);
+            AnchorPane mainPage = loader.load();
+            rootLayout.setCenter(mainPage);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void showAddWgPage() {
+        try {
+            // Load FXML dialog
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("views/add-wg-view.fxml"));
+            Parent parent = loader.load();
+
+            // Buat Stage baru untuk dialog
+            Stage stage = new Stage();
+            stage.setResizable(false);
+            stage.setTitle("Add New");
+            stage.initModality(Modality.WINDOW_MODAL); // Set sebagai modal dialog
+            stage.setScene(new Scene(parent));
+            stage.showAndWait(); // Tunggu sampai dialog ditutup
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void showAddAccessPage() {
+        try {
+            // Load FXML dialog
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("views/add-access-view.fxml"));
+            Parent parent = loader.load();
+
+            // Buat Stage baru untuk dialog
+            Stage stage = new Stage();
+            stage.setResizable(false);
+            stage.setTitle("Add Access");
+            stage.initModality(Modality.WINDOW_MODAL); // Set sebagai modal dialog
+            stage.setScene(new Scene(parent));
+            stage.showAndWait(); // Tunggu sampai dialog ditutup
         } catch (Exception e) {
             e.printStackTrace();
         }

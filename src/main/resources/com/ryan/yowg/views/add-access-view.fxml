@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox alignment="TOP_CENTER" prefHeight="192.0" prefWidth="372.0" spacing="10" style="-fx-padding: 20;" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.ryan.yowg.controllers.AddAccessController">
+    <children>
+        <TextField fx:id="nameField" promptText="Enter name" />
+        <TextField fx:id="addressField" promptText="Enter address" />
+      <ComboBox fx:id="wireguardComboBox" prefHeight="24.0" prefWidth="381.0" promptText="Select Wireguard" />
+      <HBox alignment="CENTER" prefHeight="50.0" prefWidth="200.0" spacing="10.0">
+         <children>
+              <Button fx:id="saveButton" contentDisplay="CENTER" text="Save" />
+            <Button fx:id="cancelButton" contentDisplay="CENTER" text="Cancel" />
+         </children>
+      </HBox>
+    </children>
+</VBox>

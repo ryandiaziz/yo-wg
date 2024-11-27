@@ -5,8 +5,25 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ec50fa94-1667-41ec-ab0e-d28cc4dfa54e" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/material_theme_project_new.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/material_theme_project_new.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/ryan/yowg/components/AccessComp.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/ryan/yowg/components/ListItemAccessComp.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/ryan/yowg/components/ListItemWgComp.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/ryan/yowg/controllers/AccessController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/ryan/yowg/controllers/AddAccessController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/ryan/yowg/controllers/AddWgController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/ryan/yowg/controllers/WireguardController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/ryan/yowg/dao/AccessDAO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/ryan/yowg/dao/DatabaseConnector.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/ryan/yowg/dao/DatabaseSetup.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/ryan/yowg/dao/WireguardDAO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/ryan/yowg/models/Access.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/ryan/yowg/models/Wireguard.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/com/ryan/yowg/views/access-view.fxml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/com/ryan/yowg/views/add-access-view.fxml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/com/ryan/yowg/views/add-wg-view.fxml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/com/ryan/yowg/views/wireguards-view.fxml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mvnw.cmd" beforeDir="false" afterPath="$PROJECT_DIR$/mvnw.cmd" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/ryan/yowg/MainApp.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ryan/yowg/MainApp.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/ryan/yowg/controllers/MainController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ryan/yowg/controllers/MainController.java" afterDir="false" />
@@ -57,16 +74,24 @@
     "Application.MainApp.executor": "Run",
     "Maven.yo-wg [install].executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "master",
+    "git-widget-placeholder": "feat/integration-sqlite",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "/home/ryan/Projects/e-doc",
+    "last_opened_file_path": "/home/ryan/Projects/yo-wg/src/main/resources/com/ryan/yowg/views",
     "settings.editor.selected.configurable": "editor.stickyLines"
   }
 }]]></component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src/main/resources/com/ryan/yowg/views" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/src/main/resources/com/ryan/yowg/views" />
+    </key>
+    <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="com.ryan.yowg.components" />
+      <recent name="com.ryan.yowg.controllers" />
     </key>
   </component>
   <component name="RunAnythingCache">

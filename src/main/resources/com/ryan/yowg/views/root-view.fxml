@@ -1,20 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.layout.BorderPane?>
 
-<BorderPane xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.ryan.yowg.controllers.RootController">
+<BorderPane xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.ryan.yowg.controllers.RootController">
     <top>
         <MenuBar prefHeight="27.0" prefWidth="200.0" style="-fx-background-color: white;" BorderPane.alignment="CENTER">
             <menus>
-                <Menu mnemonicParsing="false" text="Konfigurasi">
+                <Menu mnemonicParsing="false" text="Main">
                     <items>
-                        <MenuItem mnemonicParsing="false" text="Pilih file konfigurasi" />
+                        <MenuItem fx:id="addNew" mnemonicParsing="false" text="Add New" />
+                  <MenuItem fx:id="shutdownWg" mnemonicParsing="false" text="Shutdown" />
+                  <MenuItem fx:id="shutdownAndCloseWg" mnemonicParsing="false" text="Shutdown &amp; Close" />
                     </items>
                 </Menu>
+            <Menu mnemonicParsing="false" text="Insert">
+               <items>
+                  <MenuItem fx:id="menuWireguard" mnemonicParsing="false" text="Wireguards" />
+                  <MenuItem fx:id="menuAccess" mnemonicParsing="false" text="Access" />
+               </items>
+            </Menu>
             </menus>
         </MenuBar>
     </top>
