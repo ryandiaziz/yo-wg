@@ -4,48 +4,24 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="ec50fa94-1667-41ec-ab0e-d28cc4dfa54e" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/ryan/yowg/components/AccessComp.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/ryan/yowg/components/ListItemAccessComp.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/ryan/yowg/components/ListItemWgComp.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/ryan/yowg/controllers/AccessController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/ryan/yowg/controllers/AddAccessController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/ryan/yowg/controllers/AddWgController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/ryan/yowg/controllers/WireguardController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/ryan/yowg/dao/AccessDAO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/ryan/yowg/dao/DatabaseConnector.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/ryan/yowg/dao/DatabaseSetup.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/ryan/yowg/dao/WireguardDAO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/ryan/yowg/models/Access.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/ryan/yowg/models/Wireguard.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/com/ryan/yowg/views/access-view.fxml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/com/ryan/yowg/views/add-access-view.fxml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/com/ryan/yowg/views/add-wg-view.fxml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/com/ryan/yowg/views/wireguards-view.fxml" afterDir="false" />
+    <list default="true" id="a67d31c0-1bc3-43bf-8a06-119144f61220" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/ryan/yowg/services/ToggleGroupService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/material_theme_project_new.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/uiDesigner.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mvnw.cmd" beforeDir="false" afterPath="$PROJECT_DIR$/mvnw.cmd" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ryan/yowg/MainApp.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ryan/yowg/MainApp.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ryan/yowg/components/ListItemAccessComp.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ryan/yowg/components/ListItemAccessComp.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/ryan/yowg/controllers/MainController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ryan/yowg/controllers/MainController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ryan/yowg/controllers/RootController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ryan/yowg/controllers/RootController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ryan/yowg/dao/DatabaseConnector.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ryan/yowg/dao/DatabaseConnector.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/ryan/yowg/utils/Execute.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ryan/yowg/utils/Execute.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/ryan/yowg/utils/ReadConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ryan/yowg/utils/ReadConfig.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/module-info.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/module-info.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/resources/com/ryan/yowg/views/main-view.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/com/ryan/yowg/views/main-view.fxml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/com/ryan/yowg/views/root-view.fxml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/com/ryan/yowg/views/root-view.fxml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
-  </component>
-  <component name="FileTemplateManagerImpl">
-    <option name="RECENT_TEMPLATES">
-      <list>
-        <option value="FxmlFile" />
-        <option value="Class" />
-      </list>
-    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -63,51 +39,70 @@
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 2
 }</component>
-  <component name="ProjectId" id="2ndbLK7JXxECXUEXlgVKsk4wA6d" />
-  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectId" id="2rN8lZnV6cAJ6EgrOZEzRoTq9R8" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Application.MainApp.executor": "Run",
-    "Maven.yo-wg [install].executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "feat/integration-sqlite",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "/home/ryan/Projects/yo-wg/src/main/resources/com/ryan/yowg/views",
-    "settings.editor.selected.configurable": "editor.stickyLines"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Application.MainApp.executor&quot;: &quot;Run&quot;,
+    &quot;Maven.yo-wg [clean].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.yo-wg [compile].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.yo-wg [install].executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;feat/integration-sqlite&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/ryan/Projects/yo-wg&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.lookFeel&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
-  <component name="RecentsManager">
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/src/main/resources/com/ryan/yowg/views" />
-    </key>
-    <key name="MoveFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/src/main/resources/com/ryan/yowg/views" />
-    </key>
-    <key name="CopyClassDialog.RECENTS_KEY">
-      <recent name="com.ryan.yowg.components" />
-      <recent name="com.ryan.yowg.controllers" />
-    </key>
-  </component>
+}</component>
   <component name="RunAnythingCache">
     <option name="myCommands">
       <command value="mvn install" />
+      <command value="mvn clean" />
+      <command value="mvn compile" />
     </option>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-jdk-9823dce3aa75-fdfe4dae3a2d-intellij.indexing.shared.core-IU-243.22562.218" />
+        <option value="bundled-js-predefined-d6986cc7102b-deb605915726-JavaScript-IU-243.22562.218" />
+      </set>
+    </attachedChunks>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="ec50fa94-1667-41ec-ab0e-d28cc4dfa54e" name="Changes" comment="" />
-      <created>1729305844686</created>
+      <changelist id="a67d31c0-1bc3-43bf-8a06-119144f61220" name="Changes" comment="" />
+      <created>1736388323927</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1729305844686</updated>
+      <updated>1736388323927</updated>
+      <workItem from="1736388325530" duration="406000" />
+      <workItem from="1736389143846" duration="22000" />
+      <workItem from="1742355206487" duration="263000" />
+      <workItem from="1742355674404" duration="954000" />
+      <workItem from="1742369190167" duration="21000" />
+      <workItem from="1744206245538" duration="49000" />
+      <workItem from="1744338675227" duration="13000" />
+      <workItem from="1746340780663" duration="630000" />
+      <workItem from="1746345089123" duration="4208000" />
+      <workItem from="1746356541383" duration="638000" />
+      <workItem from="1746415567542" duration="16000" />
+      <workItem from="1746450643563" duration="1691000" />
     </task>
     <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
   </component>
 </project>

@@ -3,7 +3,7 @@ package com.ryan.yowg.utils;
 import java.io.*;
 
 public class Execute {
-    public static String wgAction(String action, String wgName) {
+    public static void wgAction(String action, String wgName) {
         String command = "echo "+ ReadConfig.getPassword() +" | sudo -S wg-quick " + action + " " + wgName;
 
         System.out.println(command);
@@ -26,29 +26,29 @@ public class Execute {
             e.printStackTrace();
         }
 
-        return output.toString();
     }
 
-    public static String command(String cmd) {
-        StringBuilder output = new StringBuilder();
-        Process process;
-
+    public static void command(String command) {
         try {
-            process = Runtime.getRuntime().exec(cmd);
-            process.waitFor();
+            ProcessBuilder builder = new ProcessBuilder("bash", "-c", command);
+            builder.redirectErrorStream(true);
+            Process process = builder.start();
 
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            String line;
-
-            while ((line = reader.readLine()) != null) {
-                output.append(line).append("\n");
+            // Baca output dari proses
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    System.out.println("[command output] " + line);
+                }
             }
 
+            int exitCode = process.waitFor();
+            if (exitCode != 0) {
+                System.err.println("Command exited with code " + exitCode);
+            }
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
-
-        return output.toString();
     }
 
     /**
@@ -64,15 +64,21 @@ public class Execute {
             return "Error: Directory /etc/wireguard does not exist or is not accessible.";
         }
 
-        File file = new File(dir, fileName + ".conf");
+        File file = new File("/tmp", fileName + ".conf");
+        String moveCommand = "echo " + ReadConfig.getPassword() + " | sudo -S mv /tmp/" + fileName + ".conf /etc/wireguard/";
+        System.out.println(moveCommand);
+
+
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
             // Write content to the file
             writer.write(content);
             System.out.println("File " + file.getAbsolutePath() + " created successfully!");
+            Execute.command(moveCommand);
 
             // Set permissions to 600 using chmod with password
-            String command = "echo " + ReadConfig.getPassword() + " | sudo -S chmod 600 " + file.getAbsolutePath();
-            Execute.command(command);
+            String chmodCommand = "echo " + ReadConfig.getPassword() + " | sudo -S chmod 600 /etc/wireguard/" + fileName + ".conf";
+
+            Execute.command(chmodCommand);
             System.out.println("Permissions set to 600 for " + file.getAbsolutePath());
 
             return "File " + file.getAbsolutePath() + " created successfully!";

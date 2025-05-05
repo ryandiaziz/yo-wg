@@ -10,8 +10,10 @@ import javafx.scene.layout.Priority;
 import java.util.concurrent.CompletableFuture;
 
 public class ListItemAccessComp extends HBox {
-
+    private final Access access;
     public ListItemAccessComp(Access access) {
+        this.access = access;
+
         Label nameLabel = new Label(access.getName());
         Button deleteButton = new Button("Delete");
         Button editButton = new Button("Edit");
@@ -35,5 +37,9 @@ public class ListItemAccessComp extends HBox {
 
         // Tambahkan CSS tambahan untuk tata letak
         this.setStyle("-fx-alignment: center-left; -fx-padding: 5;"); // Mengatur elemen rata kiri dan padding
+    }
+
+    public Access getAccess() {
+        return access;
     }
 }

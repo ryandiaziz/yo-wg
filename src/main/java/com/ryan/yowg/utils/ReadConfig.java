@@ -6,8 +6,7 @@ import java.io.File;
 import java.util.List;
 
 public class ReadConfig {
-    private static final String CONF_FILE = "./conf/application.conf";
-//    private static final String CONF_FILE = System.getProperty("user.home")+ "/Program/yo-wg/conf/application.conf";
+    private static final String CONF_FILE = System.getProperty("user.home")+ "/Program/yo-wg/conf/application.conf";
 
     static File configFile = new File(CONF_FILE);
     static Config config = ConfigFactory.parseFile(configFile);
