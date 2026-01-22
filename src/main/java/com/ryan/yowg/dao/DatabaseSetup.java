@@ -5,6 +5,13 @@ import java.sql.Statement;
 
 public class DatabaseSetup {
     public static void createTable() {
+        String sql_table_wg = "CREATE TABLE IF NOT EXISTS wireguards ("
+                + "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + "name TEXT NOT NULL UNIQUE, "
+                + "note TEXT NOT NULL, "
+                + "content TEXT NOT NULL "
+                + ");";
+
         String sql_table_access = "CREATE TABLE IF NOT EXISTS access ("
                 + "id INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + "name TEXT NOT NULL, "
@@ -13,18 +20,29 @@ public class DatabaseSetup {
                 + "FOREIGN KEY (wireguard_id) REFERENCES wireguards(id) ON DELETE CASCADE"
                 + ");";
 
-        String sql_table_wg = "CREATE TABLE IF NOT EXISTS wireguards ("
+        // TAMBAHKAN INI: Tabel baru untuk menyimpan banyak URL per 'access'
+        String sql_table_resources = "CREATE TABLE IF NOT EXISTS resources ("
                 + "id INTEGER PRIMARY KEY AUTOINCREMENT, "
-                + "name TEXT NOT NULL UNIQUE, "
-                + "note TEXT NOT NULL, "
-                + "content TEXT NOT NULL "
+                + "name TEXT NOT NULL, "
+                + "url TEXT NOT NULL, "
+                + "access_id INTEGER, "
+                + "FOREIGN KEY (access_id) REFERENCES access(id) ON DELETE CASCADE"
                 + ");";
 
         try (Connection conn = DatabaseConnector.connect();
              Statement stmt = conn.createStatement()) {
+
             stmt.execute(sql_table_wg);
+            System.out.println("Tabel 'wireguards' siap.");
+
             stmt.execute(sql_table_access);
-            System.out.println("Table 'users' created or already exists.");
+            System.out.println("Tabel 'access' siap.");
+
+            stmt.execute(sql_table_resources);
+            System.out.println("Tabel 'resources' siap.");
+
+            System.out.println("Semua tabel berhasil disiapkan.");
+
         } catch (Exception e) {
             System.out.println("Error creating table: " + e.getMessage());
         }

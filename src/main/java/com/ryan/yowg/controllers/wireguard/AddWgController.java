@@ -1,4 +1,4 @@
-package com.ryan.yowg.controllers;
+package com.ryan.yowg.controllers.wireguard;
 
 import com.ryan.yowg.dao.WireguardDAO;
 import com.ryan.yowg.models.Wireguard;

@@ -1,9 +1,9 @@
-package com.ryan.yowg.controllers;
+package com.ryan.yowg.controllers.resource;
 
 import com.ryan.yowg.MainApp;
-import com.ryan.yowg.components.ListItemAccessComp;
-import com.ryan.yowg.dao.AccessDAO;
-import com.ryan.yowg.models.Access;
+import com.ryan.yowg.components.ListItemResourceComp;
+import com.ryan.yowg.dao.ResourceDAO;
+import com.ryan.yowg.models.Resource;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -16,24 +16,24 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.concurrent.CompletableFuture;
 
-public class AccessController implements Initializable {
+public class ResourceController implements Initializable {
     private final MainApp mainApp;
     @FXML
-    private VBox listAccessContainer;
+    private VBox listResourceContainer;
     @FXML
     private Button btnHome;
     @FXML
-    private Button btnAdd;
+    private Button btnAddResource;
 
-    public AccessController(MainApp mainApp){
+    public ResourceController(MainApp mainApp){
         this.mainApp = mainApp;
     }
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        setListAccess();
+        this.setListResource();
         btnHome.setOnAction(this::handleHome);
-        btnAdd.setOnAction(this::handleAdd);
+        btnAddResource.setOnAction(this::handleAdd);
     }
 
     private void handleHome(ActionEvent event){
@@ -41,18 +41,19 @@ public class AccessController implements Initializable {
     }
 
     private void handleAdd(ActionEvent event){
-        mainApp.showAddAccessPage();
+        System.out.println("TAMBAHKAN RESOUC");
+        mainApp.showAddResourcePage();
     }
 
-    private void setListAccess(){
+    private void setListResource(){
         CompletableFuture.runAsync(() -> {
-            List<Access> accessList = AccessDAO.getAllAccess();
+            List<Resource> resources = ResourceDAO.getAllResources();
 
             Platform.runLater(() -> {
                 int num = 1;
-                for (Access access : accessList){
-                    listAccessContainer.getChildren().add(
-                            new ListItemAccessComp(access)
+                for (Resource resource : resources){
+                    listResourceContainer.getChildren().add(
+                            new ListItemResourceComp(resource)
                     );
                 }
             });

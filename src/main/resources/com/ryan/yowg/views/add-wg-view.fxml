@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox alignment="CENTER" prefHeight="394.0" prefWidth="372.0" spacing="10" style="-fx-padding: 20;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.ryan.yowg.controllers.AddWgController">
+<VBox alignment="CENTER" prefHeight="394.0" prefWidth="372.0" spacing="10" style="-fx-padding: 20;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.ryan.yowg.controllers.wireguard.AddWgController">
     <children>
         <TextField fx:id="nameField" promptText="Enter name" />
         <TextField fx:id="noteField" promptText="Enter note" />

@@ -1,9 +1,9 @@
-package com.ryan.yowg.controllers;
+package com.ryan.yowg.controllers.resource;
 
 import com.ryan.yowg.dao.AccessDAO;
-import com.ryan.yowg.dao.WireguardDAO;
+import com.ryan.yowg.dao.ResourceDAO;
 import com.ryan.yowg.models.Access;
-import com.ryan.yowg.models.Wireguard;
+import com.ryan.yowg.models.Resource;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -17,13 +17,13 @@ import javafx.stage.Stage;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-public class AddAccessController {
+public class AddResourceController {
     @FXML
     private TextField nameField;
     @FXML
-    private TextField addressField;
+    private TextField urlField;
     @FXML
-    private ComboBox<Wireguard> wireguardComboBox;
+    private ComboBox<Access> accessComboBox;
     @FXML
     private Button saveButton;
     @FXML
@@ -35,24 +35,24 @@ public class AddAccessController {
         cancelButton.setOnAction(this::handleCancel);
 
         // Load data wireguards ke ComboBox
-        loadWireguards();
+        this.loadAccesses();
     }
 
-    private void loadWireguards() {
-        List<Wireguard> wireguards = WireguardDAO.getAllWireguards();
-        ObservableList<Wireguard> wireguardOptions = FXCollections.observableArrayList(wireguards);
-        wireguardComboBox.setItems(wireguardOptions);
+    private void loadAccesses() {
+        List<Access> accessList = AccessDAO.getAllAccess();
+        ObservableList<Access> accessObservableList = FXCollections.observableArrayList(accessList);
+        accessComboBox.setItems(accessObservableList);
 
         // Set converter untuk menampilkan nama Wireguard di ComboBox
-        wireguardComboBox.setConverter(new javafx.util.StringConverter<>() {
+        accessComboBox.setConverter(new javafx.util.StringConverter<>() {
             @Override
-            public String toString(Wireguard wireguard) {
-                return wireguard != null ? wireguard.getName() : "";
+            public String toString(Access access) {
+                return access != null ? access.getName() : "";
             }
 
             @Override
-            public Wireguard fromString(String string) {
-                return wireguardOptions.stream()
+            public Access fromString(String string) {
+                return accessObservableList.stream()
                         .filter(w -> w.getName().equals(string))
                         .findFirst()
                         .orElse(null);
@@ -62,19 +62,19 @@ public class AddAccessController {
 
     public void handleSubmit(ActionEvent event) {
         String name = nameField.getText();
-        String address = addressField.getText();
-        Wireguard selectedWireguard = wireguardComboBox.getValue();
+        String url = urlField.getText();
+        Access selectedAccess = accessComboBox.getValue();
 
         // Validasi input
-        if (name.isEmpty() || address.isEmpty() || selectedWireguard == null) {
-            System.out.println("Name, Note, Content, and Wireguard must not be empty!");
+        if (name.isEmpty() || url.isEmpty() || selectedAccess == null) {
+            System.out.println("Name, Url, and Access must not be empty!");
             return;
         }
 
-        System.out.println(name + " " + address + " " + selectedWireguard.getName());
+        System.out.println(name + " " + url + " " + selectedAccess.getName());
 
         CompletableFuture.runAsync(() -> {
-            AccessDAO.insertAccess(new Access(name, address, selectedWireguard.getId()));
+            ResourceDAO.insertResource(new Resource(name, url, selectedAccess.getId()));
 
             Platform.runLater(() -> handleCancel(event));
         });

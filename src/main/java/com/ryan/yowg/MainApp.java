@@ -1,8 +1,9 @@
 package com.ryan.yowg;
 
-import com.ryan.yowg.controllers.AccessController;
+import com.ryan.yowg.controllers.access.AccessController;
+import com.ryan.yowg.controllers.resource.ResourceController;
 import com.ryan.yowg.controllers.RootController;
-import com.ryan.yowg.controllers.WireguardController;
+import com.ryan.yowg.controllers.wireguard.WireguardController;
 import com.ryan.yowg.dao.DatabaseSetup;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -29,7 +30,7 @@ public class MainApp extends Application {
 
         this.primaryStage = stage;
         this.primaryStage.setResizable(false);
-        showRootPage();
+        this.showRootPage();
         this.primaryStage.show();
     }
 
@@ -67,6 +68,19 @@ public class MainApp extends Application {
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(MainApp.class.getResource("views/access-view.fxml"));
             loader.setControllerFactory(param -> accessController);
+            AnchorPane mainPage = loader.load();
+            rootLayout.setCenter(mainPage);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void showResourceMenuPage() {
+        try {
+            ResourceController resourceController = new ResourceController(this);
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(MainApp.class.getResource("views/resource-view.fxml"));
+            loader.setControllerFactory(param -> resourceController);
             AnchorPane mainPage = loader.load();
             rootLayout.setCenter(mainPage);
         } catch (Exception e) {
@@ -115,6 +129,24 @@ public class MainApp extends Application {
             Stage stage = new Stage();
             stage.setResizable(false);
             stage.setTitle("Add Access");
+            stage.initModality(Modality.WINDOW_MODAL); // Set sebagai modal dialog
+            stage.setScene(new Scene(parent));
+            stage.showAndWait(); // Tunggu sampai dialog ditutup
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void showAddResourcePage() {
+        try {
+            // Load FXML dialog
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("views/add-resource-view.fxml"));
+            Parent parent = loader.load();
+
+            // Buat Stage baru untuk dialog
+            Stage stage = new Stage();
+            stage.setResizable(false);
+            stage.setTitle("Add Resource");
             stage.initModality(Modality.WINDOW_MODAL); // Set sebagai modal dialog
             stage.setScene(new Scene(parent));
             stage.showAndWait(); // Tunggu sampai dialog ditutup

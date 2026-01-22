@@ -9,14 +9,14 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.ryan.yowg.controllers.wireguard.WireguardController">
+<AnchorPane xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.ryan.yowg.controllers.resource.ResourceController">
    <children>
       <VBox alignment="TOP_CENTER" prefHeight="500.0" prefWidth="501.0" spacing="10.0">
           <padding>
               <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
           </padding>
          <children>
-            <Label text="Wireguards">
+            <Label text="Resources">
                <font>
                   <Font name="System Bold" size="13.0" />
                </font>
@@ -24,12 +24,12 @@
             <HBox prefWidth="200.0" spacing="10.0">
                <children>
                   <Button fx:id="btnHome" mnemonicParsing="false" text="Home" />
-                  <Button fx:id="btnAdd" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" text="Add" />
+                  <Button fx:id="btnAddResource" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" text="Add" />
                </children>
             </HBox>
             <ScrollPane prefHeight="443.0" prefWidth="461.0">
                <content>
-                  <VBox fx:id="listWireguardContainer" alignment="TOP_CENTER" prefHeight="398.0" prefWidth="459.0" spacing="10.0">
+                  <VBox fx:id="listResourceContainer" alignment="TOP_CENTER" prefHeight="398.0" prefWidth="459.0" spacing="10.0">
                      <padding>
                         <Insets top="10.0" />
                      </padding>

@@ -25,6 +25,8 @@ public class RootController implements Initializable {
     @FXML
     private MenuItem menuAccess;
     @FXML
+    private MenuItem menuResources;
+    @FXML
     private MenuItem menuWireguard;
 
     public RootController(MainApp mainApp){
@@ -38,6 +40,7 @@ public class RootController implements Initializable {
         shutdownAndCloseWg.setOnAction(this::handleShutdownAndCloseWg);
         menuAccess.setOnAction(this::handleMenuAccess);
         menuWireguard.setOnAction(this::handleMenuWireGuard);
+        menuResources.setOnAction(this::handleMenuResource);
     }
 
     private void handleAddNew(ActionEvent event){
@@ -63,6 +66,10 @@ public class RootController implements Initializable {
 
     private void handleMenuAccess(ActionEvent event){
         mainApp.showAccessMenuPage();
+    }
+
+    private void handleMenuResource(ActionEvent event){
+        mainApp.showResourceMenuPage();
     }
 
     private void handleMenuWireGuard(ActionEvent event){

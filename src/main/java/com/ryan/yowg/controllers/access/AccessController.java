@@ -1,9 +1,9 @@
-package com.ryan.yowg.controllers;
+package com.ryan.yowg.controllers.access;
 
 import com.ryan.yowg.MainApp;
-import com.ryan.yowg.components.ListItemWgComp;
-import com.ryan.yowg.dao.WireguardDAO;
-import com.ryan.yowg.models.Wireguard;
+import com.ryan.yowg.components.ListItemAccessComp;
+import com.ryan.yowg.dao.AccessDAO;
+import com.ryan.yowg.models.Access;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -16,22 +16,22 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.concurrent.CompletableFuture;
 
-public class WireguardController implements Initializable {
+public class AccessController implements Initializable {
     private final MainApp mainApp;
     @FXML
-    private VBox listWireguardContainer;
+    private VBox listAccessContainer;
     @FXML
     private Button btnHome;
     @FXML
     private Button btnAdd;
 
-    public WireguardController(MainApp mainApp){
+    public AccessController(MainApp mainApp){
         this.mainApp = mainApp;
     }
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        setListWireguard();
+        setListAccess();
         btnHome.setOnAction(this::handleHome);
         btnAdd.setOnAction(this::handleAdd);
     }
@@ -41,18 +41,18 @@ public class WireguardController implements Initializable {
     }
 
     private void handleAdd(ActionEvent event){
-        mainApp.showAddWgPage();
+        mainApp.showAddAccessPage();
     }
 
-    private void setListWireguard(){
+    private void setListAccess(){
         CompletableFuture.runAsync(() -> {
-            List<Wireguard> wireguardList = WireguardDAO.getAllWireguards();
+            List<Access> accessList = AccessDAO.getAllAccess();
 
             Platform.runLater(() -> {
                 int num = 1;
-                for (Wireguard wireguard : wireguardList){
-                    listWireguardContainer.getChildren().add(
-                            new ListItemWgComp(wireguard)
+                for (Access access : accessList){
+                    listAccessContainer.getChildren().add(
+                            new ListItemAccessComp(access)
                     );
                 }
             });
