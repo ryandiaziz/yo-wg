@@ -7,6 +7,8 @@ import com.ryan.yowg.controllers.resource.ResourceController;
 import com.ryan.yowg.controllers.resource.EditResourceController;
 import com.ryan.yowg.controllers.RootController;
 import com.ryan.yowg.controllers.wireguard.WireguardController;
+import com.ryan.yowg.controllers.wireguard.EditWgController;
+import com.ryan.yowg.models.Wireguard;
 import com.ryan.yowg.dao.DatabaseSetup;
 import com.ryan.yowg.models.Resource;
 import javafx.application.Application;
@@ -115,6 +117,27 @@ public class MainApp extends Application {
             Stage stage = new Stage();
             stage.setResizable(false);
             stage.setTitle("Add New");
+            stage.initModality(Modality.WINDOW_MODAL); // Set sebagai modal dialog
+            stage.setScene(new Scene(parent));
+            stage.showAndWait(); // Tunggu sampai dialog ditutup
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void showEditWgPage(Wireguard wireguard) {
+        try {
+            // Load FXML dialog
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("views/edit-wg-view.fxml"));
+            Parent parent = loader.load();
+
+            EditWgController controller = loader.getController();
+            controller.setWireguard(wireguard);
+
+            // Buat Stage baru untuk dialog
+            Stage stage = new Stage();
+            stage.setResizable(false);
+            stage.setTitle("Edit Wireguard");
             stage.initModality(Modality.WINDOW_MODAL); // Set sebagai modal dialog
             stage.setScene(new Scene(parent));
             stage.showAndWait(); // Tunggu sampai dialog ditutup

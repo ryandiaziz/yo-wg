@@ -98,8 +98,11 @@ public class Execute {
         }
 
         File file = new File(dir, fileName + ".conf");
+        // Permissions might prevent Java from seeing the file, so we proceed to try
+        // sudo rm anyway
         if (!file.exists()) {
-            return "Error: File " + file.getAbsolutePath() + " does not exist.";
+            System.out.println("Java File.exists() returned false for " + file.getAbsolutePath()
+                    + ", possibly due to permissions. Attempting sudo deletion...");
         }
 
         try {

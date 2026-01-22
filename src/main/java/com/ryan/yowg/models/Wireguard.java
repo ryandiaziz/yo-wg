@@ -13,8 +13,31 @@ public class Wireguard {
         this.content = content;
     }
 
-    public int getId() { return id; }
-    public String getName() { return name; }
-    public String getNote() { return note; }
-    public String getContent() {return content;}
+    public int getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getNote() {
+        return note;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
 }

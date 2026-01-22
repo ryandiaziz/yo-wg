@@ -12,12 +12,15 @@ import javafx.scene.layout.Priority;
 
 import java.util.concurrent.CompletableFuture;
 
+import java.util.function.Consumer;
+
 public class ListItemWgComp extends HBox {
 
-    public ListItemWgComp(Wireguard wireguard) {
+    public ListItemWgComp(Wireguard wireguard, Consumer<Wireguard> onEdit) {
         Label nameLabel = new Label(wireguard.getName());
         Button deleteButton = new Button("Delete");
         Button editButton = new Button("Edit");
+        editButton.setOnAction(e -> onEdit.accept(wireguard));
 
         // Tambahkan CSS agar nameLabel memiliki spasi di antara komponen
         nameLabel.setMaxWidth(Double.MAX_VALUE);

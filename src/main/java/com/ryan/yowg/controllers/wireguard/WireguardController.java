@@ -25,7 +25,7 @@ public class WireguardController implements Initializable {
     @FXML
     private Button btnAdd;
 
-    public WireguardController(MainApp mainApp){
+    public WireguardController(MainApp mainApp) {
         this.mainApp = mainApp;
     }
 
@@ -36,24 +36,23 @@ public class WireguardController implements Initializable {
         btnAdd.setOnAction(this::handleAdd);
     }
 
-    private void handleHome(ActionEvent event){
+    private void handleHome(ActionEvent event) {
         mainApp.showMainPage();
     }
 
-    private void handleAdd(ActionEvent event){
+    private void handleAdd(ActionEvent event) {
         mainApp.showAddWgPage();
     }
 
-    private void setListWireguard(){
+    private void setListWireguard() {
         CompletableFuture.runAsync(() -> {
             List<Wireguard> wireguardList = WireguardDAO.getAllWireguards();
 
             Platform.runLater(() -> {
                 int num = 1;
-                for (Wireguard wireguard : wireguardList){
+                for (Wireguard wireguard : wireguardList) {
                     listWireguardContainer.getChildren().add(
-                            new ListItemWgComp(wireguard)
-                    );
+                            new ListItemWgComp(wireguard, mainApp::showEditWgPage));
                 }
             });
         });
