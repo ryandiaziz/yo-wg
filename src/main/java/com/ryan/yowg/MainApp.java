@@ -2,9 +2,11 @@ package com.ryan.yowg;
 
 import com.ryan.yowg.controllers.access.AccessController;
 import com.ryan.yowg.controllers.resource.ResourceController;
+import com.ryan.yowg.controllers.resource.EditResourceController;
 import com.ryan.yowg.controllers.RootController;
 import com.ryan.yowg.controllers.wireguard.WireguardController;
 import com.ryan.yowg.dao.DatabaseSetup;
+import com.ryan.yowg.models.Resource;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -24,7 +26,7 @@ public class MainApp extends Application {
     }
 
     @Override
-    public void start(Stage stage){
+    public void start(Stage stage) {
         // Setup database
         DatabaseSetup.createTable();
 
@@ -147,6 +149,27 @@ public class MainApp extends Application {
             Stage stage = new Stage();
             stage.setResizable(false);
             stage.setTitle("Add Resource");
+            stage.initModality(Modality.WINDOW_MODAL); // Set sebagai modal dialog
+            stage.setScene(new Scene(parent));
+            stage.showAndWait(); // Tunggu sampai dialog ditutup
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void showEditResourcePage(Resource resource) {
+        try {
+            // Load FXML dialog
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("views/edit-resource-view.fxml"));
+            Parent parent = loader.load();
+
+            EditResourceController controller = loader.getController();
+            controller.setResource(resource);
+
+            // Buat Stage baru untuk dialog
+            Stage stage = new Stage();
+            stage.setResizable(false);
+            stage.setTitle("Edit Resource");
             stage.initModality(Modality.WINDOW_MODAL); // Set sebagai modal dialog
             stage.setScene(new Scene(parent));
             stage.showAndWait(); // Tunggu sampai dialog ditutup

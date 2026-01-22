@@ -25,7 +25,7 @@ public class ResourceController implements Initializable {
     @FXML
     private Button btnAddResource;
 
-    public ResourceController(MainApp mainApp){
+    public ResourceController(MainApp mainApp) {
         this.mainApp = mainApp;
     }
 
@@ -36,25 +36,24 @@ public class ResourceController implements Initializable {
         btnAddResource.setOnAction(this::handleAdd);
     }
 
-    private void handleHome(ActionEvent event){
+    private void handleHome(ActionEvent event) {
         mainApp.showMainPage();
     }
 
-    private void handleAdd(ActionEvent event){
+    private void handleAdd(ActionEvent event) {
         System.out.println("TAMBAHKAN RESOUC");
         mainApp.showAddResourcePage();
     }
 
-    private void setListResource(){
+    private void setListResource() {
         CompletableFuture.runAsync(() -> {
             List<Resource> resources = ResourceDAO.getAllResources();
 
             Platform.runLater(() -> {
                 int num = 1;
-                for (Resource resource : resources){
+                for (Resource resource : resources) {
                     listResourceContainer.getChildren().add(
-                            new ListItemResourceComp(resource)
-                    );
+                            new ListItemResourceComp(resource, mainApp::showEditResourcePage));
                 }
             });
         });
