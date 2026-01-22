@@ -16,6 +16,8 @@ public class DatabaseSetup {
                 + "id INTEGER PRIMARY KEY AUTOINCREMENT, "
                 + "name TEXT NOT NULL, "
                 + "address TEXT NOT NULL UNIQUE, "
+                + "ssh_user TEXT DEFAULT 'administrator', "
+                + "ssh_port INTEGER DEFAULT 22, "
                 + "wireguard_id INTEGER, "
                 + "FOREIGN KEY (wireguard_id) REFERENCES wireguards(id) ON DELETE CASCADE"
                 + ");";
@@ -30,12 +32,27 @@ public class DatabaseSetup {
                 + ");";
 
         try (Connection conn = DatabaseConnector.connect();
-             Statement stmt = conn.createStatement()) {
+                Statement stmt = conn.createStatement()) {
 
             stmt.execute(sql_table_wg);
             System.out.println("Tabel 'wireguards' siap.");
 
             stmt.execute(sql_table_access);
+
+            // Migration: Add columns if they don't exist
+            try {
+                stmt.execute("ALTER TABLE access ADD COLUMN ssh_user TEXT DEFAULT 'administrator'");
+                System.out.println("Added column ssh_user to access");
+            } catch (Exception e) {
+                // Column likely exists
+            }
+            try {
+                stmt.execute("ALTER TABLE access ADD COLUMN ssh_port INTEGER DEFAULT 22");
+                System.out.println("Added column ssh_port to access");
+            } catch (Exception e) {
+                // Column likely exists
+            }
+
             System.out.println("Tabel 'access' siap.");
 
             stmt.execute(sql_table_resources);

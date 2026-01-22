@@ -4,10 +4,10 @@ import java.io.*;
 
 public class Execute {
     public static void wgAction(String action, String wgName) {
-        String command = "echo "+ ReadConfig.getPassword() +" | sudo -S wg-quick " + action + " " + wgName;
+        String command = "echo " + ReadConfig.getPassword() + " | sudo -S wg-quick " + action + " " + wgName;
 
         System.out.println(command);
-        String[] cmd = {"/bin/bash", "-c", command};
+        String[] cmd = { "/bin/bash", "-c", command };
         StringBuilder output = new StringBuilder();
         Process process;
 
@@ -52,9 +52,11 @@ public class Execute {
     }
 
     /**
-     * Creates a WireGuard configuration file in /etc/wireguard with proper permissions.
+     * Creates a WireGuard configuration file in /etc/wireguard with proper
+     * permissions.
+     * 
      * @param fileName The name of the file (without .conf extension).
-     * @param content The content to write into the file.
+     * @param content  The content to write into the file.
      * @return A success or error message.
      */
     public static String createConfFile(String fileName, String content) {
@@ -65,9 +67,9 @@ public class Execute {
         }
 
         File file = new File("/tmp", fileName + ".conf");
-        String moveCommand = "echo " + ReadConfig.getPassword() + " | sudo -S mv /tmp/" + fileName + ".conf /etc/wireguard/";
+        String moveCommand = "echo " + ReadConfig.getPassword() + " | sudo -S mv /tmp/" + fileName
+                + ".conf /etc/wireguard/";
         System.out.println(moveCommand);
-
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
             // Write content to the file
@@ -76,7 +78,8 @@ public class Execute {
             Execute.command(moveCommand);
 
             // Set permissions to 600 using chmod with password
-            String chmodCommand = "echo " + ReadConfig.getPassword() + " | sudo -S chmod 600 /etc/wireguard/" + fileName + ".conf";
+            String chmodCommand = "echo " + ReadConfig.getPassword() + " | sudo -S chmod 600 /etc/wireguard/" + fileName
+                    + ".conf";
 
             Execute.command(chmodCommand);
             System.out.println("Permissions set to 600 for " + file.getAbsolutePath());
@@ -105,8 +108,7 @@ public class Execute {
             System.out.println("Executing command: " + command);
 
             ProcessBuilder builder = new ProcessBuilder(
-                    "/bin/bash", "-c", command
-            );
+                    "/bin/bash", "-c", command);
             builder.redirectErrorStream(true);
             Process process = builder.start();
 
@@ -132,6 +134,16 @@ public class Execute {
         } catch (Exception e) {
             e.printStackTrace();
             return "Error deleting file: " + e.getMessage();
+        }
+    }
+
+    public static void openSSHTerminal(String address, String user, int port) {
+        try {
+            String sshCommand = "ssh -p " + port + " " + user + "@" + address;
+            String[] cmd = { "gnome-terminal", "--", "bash", "-c", sshCommand + "; exec bash" };
+            Runtime.getRuntime().exec(cmd);
+        } catch (IOException e) {
+            // Log error
         }
     }
 }

@@ -89,7 +89,8 @@ public class MainController implements Initializable {
     private void loadWireguardDetails(String wireguardName) {
         CompletableFuture.runAsync(() -> {
             Wireguard wireguard = WireguardDAO.findWireguardByName(wireguardName);
-            if (wireguard == null) return;
+            if (wireguard == null)
+                return;
 
             List<Access> accessList = AccessDAO.getAccessByWireguard(wireguard.getId());
             Platform.runLater(() -> {
@@ -104,7 +105,7 @@ public class MainController implements Initializable {
         List<AccessComp> accessCompList = new ArrayList<>();
         for (int i = 0; i < accessList.size(); i++) {
             Access access = accessList.get(i);
-            accessCompList.add(new AccessComp(i + 1, access.getName(), access.getAddress()));
+            accessCompList.add(new AccessComp(i + 1, access));
         }
         accessContainer.getChildren().setAll(accessCompList);
     }

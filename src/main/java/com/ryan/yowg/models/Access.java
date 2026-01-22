@@ -4,6 +4,8 @@ public class Access {
     private int id;
     private String name;
     private String address;
+    private String sshUser = "root";
+    private int sshPort = 22;
     private int wireguardId;
 
     public Access(String name, String address, int wireguardId) {
@@ -16,6 +18,18 @@ public class Access {
         this.id = id;
         this.name = name;
         this.address = address;
+        this.wireguardId = wireguardId;
+    }
+
+    // Constructor with SSH details
+    public Access(int id, String name, String address, String sshUser, int sshPort, int wireguardId) {
+        this.id = id;
+        this.name = name;
+        this.address = address;
+        if (sshUser != null)
+            this.sshUser = sshUser;
+        if (sshPort > 0)
+            this.sshPort = sshPort;
         this.wireguardId = wireguardId;
     }
 
@@ -42,6 +56,22 @@ public class Access {
 
     public void setAddress(String address) {
         this.address = address;
+    }
+
+    public String getSshUser() {
+        return sshUser;
+    }
+
+    public void setSshUser(String sshUser) {
+        this.sshUser = sshUser;
+    }
+
+    public int getSshPort() {
+        return sshPort;
+    }
+
+    public void setSshPort(int sshPort) {
+        this.sshPort = sshPort;
     }
 
     public int getWireguardId() {
