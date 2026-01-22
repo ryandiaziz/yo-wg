@@ -150,6 +150,16 @@ public class Execute {
         }
     }
 
+    public static void openPingTerminal(String address) {
+        try {
+            String pingCommand = "ping " + address;
+            String[] cmd = { "gnome-terminal", "--", "bash", "-c", pingCommand + "; exec bash" };
+            Runtime.getRuntime().exec(cmd);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void openUrl(String url) {
         try {
             // Linux implementation using xdg-open
@@ -158,6 +168,17 @@ public class Execute {
         } catch (IOException e) {
             e.printStackTrace();
             System.err.println("Failed to open URL: " + e.getMessage());
+        }
+    }
+
+    public static boolean ping(String address) {
+        try {
+            ProcessBuilder builder = new ProcessBuilder("ping", "-c", "1", "-W", "1", address);
+            Process process = builder.start();
+            return process.waitFor() == 0;
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+            return false;
         }
     }
 }

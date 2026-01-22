@@ -47,6 +47,17 @@ public class AccessComp extends HBox {
         sshButton.setOnAction(
                 e -> Execute.openSSHTerminal(access.getAddress(), access.getSshUser(), access.getSshPort()));
 
+        // Ping Terminal Icon (Pulse/Activity)
+        SVGPath pingIcon = new SVGPath();
+        pingIcon.setContent(
+                "M3,13H5.79L6.08,13.03L9,20L15,4L17.92,12.97L18.21,13H21V15H17.21L15,19L9,3L6.08,18.97L5.79,19H3V13Z");
+        pingIcon.setScaleX(0.7);
+        pingIcon.setScaleY(0.7);
+        Button pingButton = new Button();
+        pingButton.setGraphic(pingIcon);
+        pingButton.setTooltip(new Tooltip("Ping Terminal"));
+        pingButton.setOnAction(e -> Execute.openPingTerminal(access.getAddress()));
+
         // Resources Icon (List/Folder)
         SVGPath resourcesIcon = new SVGPath();
         resourcesIcon
@@ -61,7 +72,7 @@ public class AccessComp extends HBox {
         this.setSpacing(10);
         this.setPadding(new Insets(5));
         this.setStyle("-fx-border-color: #e0e0e0; -fx-border-radius: 5; -fx-background-radius: 5;");
-        this.getChildren().addAll(numLabel, contentBox, sshButton, resourcesButton);
+        this.getChildren().addAll(numLabel, contentBox, sshButton, pingButton, resourcesButton);
     }
 
     private void showResourcesDialog(Access access) {
