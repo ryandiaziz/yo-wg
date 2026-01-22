@@ -7,12 +7,9 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.RadioButton;
 
 import java.net.URL;
 import java.util.ResourceBundle;
-
-import static com.ryan.yowg.controllers.MainController.toggleGroup;
 
 public class RootController implements Initializable {
     private final MainApp mainApp;
@@ -29,7 +26,7 @@ public class RootController implements Initializable {
     @FXML
     private MenuItem menuWireguard;
 
-    public RootController(MainApp mainApp){
+    public RootController(MainApp mainApp) {
         this.mainApp = mainApp;
     }
 
@@ -43,36 +40,42 @@ public class RootController implements Initializable {
         menuResources.setOnAction(this::handleMenuResource);
     }
 
-    private void handleAddNew(ActionEvent event){
+    private void handleAddNew(ActionEvent event) {
         mainApp.showAddWgPage();
     }
 
-    private void handleShutdownWg(ActionEvent event){
-        if (toggleGroup.getSelectedToggle() != null){
-            RadioButton selectedToggle = (RadioButton) toggleGroup.getSelectedToggle();
-            Execute.wgAction("down", selectedToggle.getText());
-            toggleGroup.getSelectedToggle().setSelected(false);
+    private void handleShutdownWg(ActionEvent event) {
+        String activeWg = MainController.getActiveWireguardName();
+        if (activeWg != null) {
+            Execute.wgAction("down", activeWg);
+            MainController.setActiveWireguardName(null);
+            if (MainController.listRefresher != null) {
+                MainController.listRefresher.run();
+            }
         }
     }
 
-    private void handleShutdownAndCloseWg(ActionEvent event){
-        if (toggleGroup.getSelectedToggle() != null){
-            RadioButton selectedToggle = (RadioButton) toggleGroup.getSelectedToggle();
-            Execute.wgAction("down", selectedToggle.getText());
-            toggleGroup.getSelectedToggle().setSelected(false);
+    private void handleShutdownAndCloseWg(ActionEvent event) {
+        String activeWg = MainController.getActiveWireguardName();
+        if (activeWg != null) {
+            Execute.wgAction("down", activeWg);
+            MainController.setActiveWireguardName(null);
+            if (MainController.listRefresher != null) {
+                MainController.listRefresher.run();
+            }
         }
         mainApp.getPrimaryStage().close();
     }
 
-    private void handleMenuAccess(ActionEvent event){
+    private void handleMenuAccess(ActionEvent event) {
         mainApp.showAccessMenuPage();
     }
 
-    private void handleMenuResource(ActionEvent event){
+    private void handleMenuResource(ActionEvent event) {
         mainApp.showResourceMenuPage();
     }
 
-    private void handleMenuWireGuard(ActionEvent event){
+    private void handleMenuWireGuard(ActionEvent event) {
         mainApp.showWireguardMenuPage();
     }
 }
