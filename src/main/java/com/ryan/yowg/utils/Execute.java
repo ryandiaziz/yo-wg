@@ -146,4 +146,15 @@ public class Execute {
             // Log error
         }
     }
+
+    public static void openUrl(String url) {
+        try {
+            // Linux implementation using xdg-open
+            ProcessBuilder builder = new ProcessBuilder("xdg-open", url);
+            builder.start();
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.err.println("Failed to open URL: " + e.getMessage());
+        }
+    }
 }
