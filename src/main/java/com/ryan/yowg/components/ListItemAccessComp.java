@@ -9,14 +9,18 @@ import javafx.scene.layout.Priority;
 
 import java.util.concurrent.CompletableFuture;
 
+import java.util.function.Consumer;
+
 public class ListItemAccessComp extends HBox {
     private final Access access;
-    public ListItemAccessComp(Access access) {
+
+    public ListItemAccessComp(Access access, Consumer<Access> onEdit) {
         this.access = access;
 
         Label nameLabel = new Label(access.getName());
         Button deleteButton = new Button("Delete");
         Button editButton = new Button("Edit");
+        editButton.setOnAction(e -> onEdit.accept(access));
 
         // Tambahkan CSS agar nameLabel memiliki spasi di antara komponen
         nameLabel.setMaxWidth(Double.MAX_VALUE);
@@ -26,6 +30,11 @@ public class ListItemAccessComp extends HBox {
         deleteButton.setOnAction(event -> {
             CompletableFuture.runAsync(() -> {
                 AccessDAO.deleteAccess(access.getId());
+                javafx.application.Platform.runLater(() -> {
+                    if (this.getParent() instanceof javafx.scene.layout.Pane) {
+                        ((javafx.scene.layout.Pane) this.getParent()).getChildren().remove(this);
+                    }
+                });
             });
         });
 

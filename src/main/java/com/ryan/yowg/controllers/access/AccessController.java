@@ -25,7 +25,7 @@ public class AccessController implements Initializable {
     @FXML
     private Button btnAdd;
 
-    public AccessController(MainApp mainApp){
+    public AccessController(MainApp mainApp) {
         this.mainApp = mainApp;
     }
 
@@ -36,24 +36,23 @@ public class AccessController implements Initializable {
         btnAdd.setOnAction(this::handleAdd);
     }
 
-    private void handleHome(ActionEvent event){
+    private void handleHome(ActionEvent event) {
         mainApp.showMainPage();
     }
 
-    private void handleAdd(ActionEvent event){
+    private void handleAdd(ActionEvent event) {
         mainApp.showAddAccessPage();
     }
 
-    private void setListAccess(){
+    private void setListAccess() {
         CompletableFuture.runAsync(() -> {
             List<Access> accessList = AccessDAO.getAllAccess();
 
             Platform.runLater(() -> {
                 int num = 1;
-                for (Access access : accessList){
+                for (Access access : accessList) {
                     listAccessContainer.getChildren().add(
-                            new ListItemAccessComp(access)
-                    );
+                            new ListItemAccessComp(access, mainApp::showEditAccessPage));
                 }
             });
         });

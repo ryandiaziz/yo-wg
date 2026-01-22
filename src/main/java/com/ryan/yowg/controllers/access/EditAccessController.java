@@ -17,7 +17,7 @@ import javafx.stage.Stage;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-public class AddAccessController {
+public class EditAccessController {
     @FXML
     private TextField nameField;
     @FXML
@@ -33,8 +33,29 @@ public class AddAccessController {
     @FXML
     private Button cancelButton;
 
+    private Access access;
+
+    public void setAccess(Access access) {
+        this.access = access;
+        nameField.setText(access.getName());
+        addressField.setText(access.getAddress());
+        sshUserField.setText(access.getSshUser());
+        sshPortField.setText(String.valueOf(access.getSshPort()));
+
+        // Select the associated wireguard
+        if (wireguardComboBox.getItems() != null) {
+            for (Wireguard wg : wireguardComboBox.getItems()) {
+                if (wg.getId() == access.getWireguardId()) {
+                    wireguardComboBox.setValue(wg);
+                    break;
+                }
+            }
+        }
+    }
+
     @FXML
     public void initialize() {
+        saveButton.setText("Update");
         saveButton.setOnAction(this::handleSubmit);
         cancelButton.setOnAction(this::handleCancel);
 
@@ -86,22 +107,15 @@ public class AddAccessController {
             return;
         }
 
-        final int portFinal = sshPort;
-        final String userFinal = sshUser;
+        // Update access object
+        access.setName(name);
+        access.setAddress(address);
+        access.setSshUser(sshUser);
+        access.setSshPort(sshPort);
+        access.setWireguardId(selectedWireguard.getId());
 
         CompletableFuture.runAsync(() -> {
-            // Using constructor: id, name, address, sshUser, sshPort, wireguardId
-            // Since id is auto-increment, we might need a constructor without ID or let DAO
-            // handle it.
-            // AccessDAO.insertAccess accepts Access object.
-            // Checking Access.java constructors...
-            // We need to ensure we use one that sets everything.
-
-            // Creating a temporary Access object to pass to DAO. ID 0 is ignored on insert
-            // usually.
-            Access newAccess = new Access(0, name, address, userFinal, portFinal, selectedWireguard.getId());
-            AccessDAO.insertAccess(newAccess);
-
+            AccessDAO.updateAccess(access);
             Platform.runLater(() -> handleCancel(event));
         });
     }

@@ -1,5 +1,7 @@
 package com.ryan.yowg;
 
+import com.ryan.yowg.controllers.access.EditAccessController;
+import com.ryan.yowg.models.Access;
 import com.ryan.yowg.controllers.access.AccessController;
 import com.ryan.yowg.controllers.resource.ResourceController;
 import com.ryan.yowg.controllers.resource.EditResourceController;
@@ -131,6 +133,27 @@ public class MainApp extends Application {
             Stage stage = new Stage();
             stage.setResizable(false);
             stage.setTitle("Add Access");
+            stage.initModality(Modality.WINDOW_MODAL); // Set sebagai modal dialog
+            stage.setScene(new Scene(parent));
+            stage.showAndWait(); // Tunggu sampai dialog ditutup
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void showEditAccessPage(Access access) {
+        try {
+            // Load FXML dialog
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("views/edit-access-view.fxml"));
+            Parent parent = loader.load();
+
+            EditAccessController controller = loader.getController();
+            controller.setAccess(access);
+
+            // Buat Stage baru untuk dialog
+            Stage stage = new Stage();
+            stage.setResizable(false);
+            stage.setTitle("Edit Access");
             stage.initModality(Modality.WINDOW_MODAL); // Set sebagai modal dialog
             stage.setScene(new Scene(parent));
             stage.showAndWait(); // Tunggu sampai dialog ditutup
