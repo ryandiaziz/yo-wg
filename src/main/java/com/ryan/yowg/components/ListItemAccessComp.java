@@ -11,6 +11,8 @@ import java.util.concurrent.CompletableFuture;
 
 import java.util.function.Consumer;
 
+import javafx.scene.shape.SVGPath;
+
 public class ListItemAccessComp extends HBox {
     private final Access access;
 
@@ -18,9 +20,24 @@ public class ListItemAccessComp extends HBox {
         this.access = access;
 
         Label nameLabel = new Label(access.getName());
-        Button deleteButton = new Button("Delete");
-        Button editButton = new Button("Edit");
+
+        // Edit Icon (Pencil)
+        SVGPath editIcon = new SVGPath();
+        editIcon.setContent(
+                "M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z");
+        editIcon.setScaleX(0.7);
+        editIcon.setScaleY(0.7);
+        Button editButton = new Button();
+        editButton.setGraphic(editIcon);
         editButton.setOnAction(e -> onEdit.accept(access));
+
+        // Delete Icon (Trash)
+        SVGPath deleteIcon = new SVGPath();
+        deleteIcon.setContent("M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z");
+        deleteIcon.setScaleX(0.7);
+        deleteIcon.setScaleY(0.7);
+        Button deleteButton = new Button();
+        deleteButton.setGraphic(deleteIcon);
 
         // Tambahkan CSS agar nameLabel memiliki spasi di antara komponen
         nameLabel.setMaxWidth(Double.MAX_VALUE);
