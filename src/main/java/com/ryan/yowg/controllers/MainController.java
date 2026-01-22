@@ -12,7 +12,10 @@ import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleGroup;
+import javafx.beans.value.ChangeListener;
+import javafx.scene.control.Toggle;
 import javafx.scene.layout.VBox;
 
 import java.net.URL;
@@ -28,12 +31,34 @@ public class MainController implements Initializable {
     private TextArea wgDetailInfo;
     @FXML
     private VBox accessContainer;
+    @FXML
+    private TextField searchField;
 
     static public final ToggleGroup toggleGroup = new ToggleGroup();
+    static private ChangeListener<Toggle> groupListener;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         initializeWireguardList();
+
+        // Add listener only once
+        addToggleGroupListener();
+
+        searchField.textProperty().addListener((observable, oldValue, newValue) -> {
+            filterWireguardList(newValue);
+        });
+    }
+
+    private void filterWireguardList(String query) {
+        CompletableFuture.runAsync(() -> {
+            List<Wireguard> wireguards;
+            if (query == null || query.trim().isEmpty()) {
+                wireguards = WireguardDAO.getAllWireguards();
+            } else {
+                wireguards = WireguardDAO.findWireguardsByAccessName(query);
+            }
+            Platform.runLater(() -> populateWireguardList(wireguards));
+        });
     }
 
     // Inisialisasi daftar Wireguard
@@ -46,11 +71,11 @@ public class MainController implements Initializable {
 
     // Mengisi daftar RadioButton untuk Wireguard
     private void populateWireguardList(List<Wireguard> wireguards) {
+        listWGContainer.getChildren().clear();
         for (Wireguard wireguard : wireguards) {
             RadioButton radioButton = createWireguardRadioButton(wireguard);
             listWGContainer.getChildren().add(radioButton);
         }
-        addToggleGroupListener();
     }
 
     // Membuat RadioButton untuk setiap Wireguard
@@ -63,7 +88,11 @@ public class MainController implements Initializable {
 
     // Menambahkan listener pada ToggleGroup
     private void addToggleGroupListener() {
-        toggleGroup.selectedToggleProperty().addListener((observable, oldToggle, newToggle) -> {
+        if (groupListener != null) {
+            toggleGroup.selectedToggleProperty().removeListener(groupListener);
+        }
+
+        groupListener = (observable, oldToggle, newToggle) -> {
             clearWireguardDetails();
 
             if (oldToggle != null) {
@@ -72,7 +101,9 @@ public class MainController implements Initializable {
             if (newToggle != null) {
                 handleWireguardToggle((RadioButton) newToggle, "up");
             }
-        });
+        };
+
+        toggleGroup.selectedToggleProperty().addListener(groupListener);
     }
 
     // Menangani aksi pada perubahan pilihan Wireguard
