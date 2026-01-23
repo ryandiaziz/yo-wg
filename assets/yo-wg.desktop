@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Yo-WG
+Comment=WireGuard Manager by Ryan
+Exec=java -jar /home/USER_PLACEHOLDER/Program/yo-wg/lib/yo-wg.jar
+Icon=utilities-terminal
+Categories=Network;Utility;
+Terminal=false
+StartupNotify=true
