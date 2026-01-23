@@ -71,7 +71,7 @@
                     <archive>
                         <manifest>
                             <mainClass>
-                                com.ryan.yowg.MainApp
+                                com.ryan.yowg.Launcher
                             </mainClass>
                         </manifest>
                     </archive>
