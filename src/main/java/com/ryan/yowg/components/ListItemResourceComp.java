@@ -1,8 +1,6 @@
 package com.ryan.yowg.components;
 
-import com.ryan.yowg.dao.AccessDAO;
 import com.ryan.yowg.dao.ResourceDAO;
-import com.ryan.yowg.models.Access;
 import com.ryan.yowg.models.Resource;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;

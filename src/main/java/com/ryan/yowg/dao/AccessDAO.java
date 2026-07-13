@@ -1,7 +1,6 @@
 package com.ryan.yowg.dao;
 
 import com.ryan.yowg.models.Access;
-import com.ryan.yowg.models.Wireguard;
 
 import java.sql.*;
 import java.util.ArrayList;

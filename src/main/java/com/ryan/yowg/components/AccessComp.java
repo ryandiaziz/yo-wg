@@ -15,7 +15,6 @@ import javafx.scene.shape.SVGPath;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.ButtonType;
-import javafx.scene.control.*;
 import javafx.scene.layout.Priority;
 import java.util.List;
 

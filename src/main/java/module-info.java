@@ -1,12 +1,16 @@
 module com.ryan.yowg {
-    requires javafx.controls;
-    requires javafx.fxml;
+    requires transitive javafx.controls;
+    requires transitive javafx.fxml;
+    requires transitive javafx.graphics;
+    requires transitive javafx.base;
     requires typesafe.config;
     requires java.sql;
 
 
     opens com.ryan.yowg to javafx.fxml;
     exports com.ryan.yowg;
+    exports com.ryan.yowg.models;
+    opens com.ryan.yowg.models to javafx.fxml;
     exports com.ryan.yowg.controllers;
     opens com.ryan.yowg.controllers to javafx.fxml;
     exports com.ryan.yowg.controllers.access;

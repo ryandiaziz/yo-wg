@@ -1,8 +1,6 @@
 package com.ryan.yowg.components;
 
-import com.ryan.yowg.dao.AccessDAO;
 import com.ryan.yowg.dao.WireguardDAO;
-import com.ryan.yowg.models.Access;
 import com.ryan.yowg.models.Wireguard;
 import com.ryan.yowg.utils.Execute;
 import javafx.scene.control.Button;

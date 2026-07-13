@@ -5,7 +5,6 @@ import com.ryan.yowg.utils.Execute;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 
 import java.net.URL;
