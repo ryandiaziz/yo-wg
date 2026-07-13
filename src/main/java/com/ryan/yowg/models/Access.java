@@ -7,6 +7,7 @@ public class Access {
     private String sshUser = "root";
     private int sshPort = 22;
     private int wireguardId;
+    private Integer credentialId;
 
     public Access(String name, String address, int wireguardId) {
         this.name = name;
@@ -31,6 +32,19 @@ public class Access {
         if (sshPort > 0)
             this.sshPort = sshPort;
         this.wireguardId = wireguardId;
+    }
+
+    // Constructor with SSH details and Credential ID
+    public Access(int id, String name, String address, String sshUser, int sshPort, int wireguardId, Integer credentialId) {
+        this.id = id;
+        this.name = name;
+        this.address = address;
+        if (sshUser != null)
+            this.sshUser = sshUser;
+        if (sshPort > 0)
+            this.sshPort = sshPort;
+        this.wireguardId = wireguardId;
+        this.credentialId = credentialId;
     }
 
     // Getter and Setter methods
@@ -80,5 +94,13 @@ public class Access {
 
     public void setWireguardId(int wireguardId) {
         this.wireguardId = wireguardId;
+    }
+
+    public Integer getCredentialId() {
+        return credentialId;
+    }
+
+    public void setCredentialId(Integer credentialId) {
+        this.credentialId = credentialId;
     }
 }

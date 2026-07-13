@@ -29,6 +29,8 @@ public class EditAccessController {
     @FXML
     private ComboBox<Wireguard> wireguardComboBox;
     @FXML
+    private ComboBox<com.ryan.yowg.models.Credential> credentialComboBox;
+    @FXML
     private Button saveButton;
     @FXML
     private Button cancelButton;
@@ -51,6 +53,16 @@ public class EditAccessController {
                 }
             }
         }
+
+        // Select the associated credential
+        if (credentialComboBox.getItems() != null && access.getCredentialId() != null) {
+            for (com.ryan.yowg.models.Credential cred : credentialComboBox.getItems()) {
+                if (cred.getId() == access.getCredentialId()) {
+                    credentialComboBox.setValue(cred);
+                    break;
+                }
+            }
+        }
     }
 
     @FXML
@@ -61,6 +73,28 @@ public class EditAccessController {
 
         // Load data wireguards ke ComboBox
         loadWireguards();
+        loadCredentials();
+    }
+
+    private void loadCredentials() {
+        List<com.ryan.yowg.models.Credential> credentials = com.ryan.yowg.dao.CredentialDAO.getAllCredentials();
+        ObservableList<com.ryan.yowg.models.Credential> credentialOptions = FXCollections.observableArrayList(credentials);
+        credentialComboBox.setItems(credentialOptions);
+
+        credentialComboBox.setConverter(new javafx.util.StringConverter<>() {
+            @Override
+            public String toString(com.ryan.yowg.models.Credential cred) {
+                return cred != null ? cred.getName() + " (" + cred.getUsername() + ")" : "";
+            }
+
+            @Override
+            public com.ryan.yowg.models.Credential fromString(String string) {
+                return credentialOptions.stream()
+                        .filter(c -> (c.getName() + " (" + c.getUsername() + ")").equals(string))
+                        .findFirst()
+                        .orElse(null);
+            }
+        });
     }
 
     private void loadWireguards() {
@@ -100,6 +134,8 @@ public class EditAccessController {
         }
 
         Wireguard selectedWireguard = wireguardComboBox.getValue();
+        com.ryan.yowg.models.Credential selectedCredential = credentialComboBox.getValue();
+        Integer credentialId = selectedCredential != null ? selectedCredential.getId() : null;
 
         // Validasi input
         if (name.isEmpty() || address.isEmpty() || selectedWireguard == null) {
@@ -113,6 +149,7 @@ public class EditAccessController {
         access.setSshUser(sshUser);
         access.setSshPort(sshPort);
         access.setWireguardId(selectedWireguard.getId());
+        access.setCredentialId(credentialId);
 
         CompletableFuture.runAsync(() -> {
             AccessDAO.updateAccess(access);

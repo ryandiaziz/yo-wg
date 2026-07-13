@@ -12,8 +12,8 @@ public class FakeHostCommunicator implements HostCommunicator {
     public final Map<String, Boolean> pingResponses = new HashMap<>();
 
     @Override
-    public void openSSHTerminal(String address, String user, int port) {
-        sshCalls.add(user + "@" + address + ":" + port);
+    public void openSSHTerminal(String address, String user, int port, String credentialType, String credentialSecret) {
+        sshCalls.add(user + "@" + address + ":" + port + " (Type: " + credentialType + ")");
     }
 
     @Override

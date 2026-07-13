@@ -29,6 +29,8 @@ public class AddAccessController {
     @FXML
     private ComboBox<Wireguard> wireguardComboBox;
     @FXML
+    private ComboBox<com.ryan.yowg.models.Credential> credentialComboBox;
+    @FXML
     private Button saveButton;
     @FXML
     private Button cancelButton;
@@ -40,6 +42,28 @@ public class AddAccessController {
 
         // Load data wireguards ke ComboBox
         loadWireguards();
+        loadCredentials();
+    }
+
+    private void loadCredentials() {
+        List<com.ryan.yowg.models.Credential> credentials = com.ryan.yowg.dao.CredentialDAO.getAllCredentials();
+        ObservableList<com.ryan.yowg.models.Credential> credentialOptions = FXCollections.observableArrayList(credentials);
+        credentialComboBox.setItems(credentialOptions);
+
+        credentialComboBox.setConverter(new javafx.util.StringConverter<>() {
+            @Override
+            public String toString(com.ryan.yowg.models.Credential cred) {
+                return cred != null ? cred.getName() + " (" + cred.getUsername() + ")" : "";
+            }
+
+            @Override
+            public com.ryan.yowg.models.Credential fromString(String string) {
+                return credentialOptions.stream()
+                        .filter(c -> (c.getName() + " (" + c.getUsername() + ")").equals(string))
+                        .findFirst()
+                        .orElse(null);
+            }
+        });
     }
 
     private void loadWireguards() {
@@ -79,6 +103,8 @@ public class AddAccessController {
         }
 
         Wireguard selectedWireguard = wireguardComboBox.getValue();
+        com.ryan.yowg.models.Credential selectedCredential = credentialComboBox.getValue();
+        Integer credentialId = selectedCredential != null ? selectedCredential.getId() : null;
 
         // Validasi input
         if (name.isEmpty() || address.isEmpty() || selectedWireguard == null) {
@@ -90,16 +116,8 @@ public class AddAccessController {
         final String userFinal = sshUser;
 
         CompletableFuture.runAsync(() -> {
-            // Using constructor: id, name, address, sshUser, sshPort, wireguardId
-            // Since id is auto-increment, we might need a constructor without ID or let DAO
-            // handle it.
-            // AccessDAO.insertAccess accepts Access object.
-            // Checking Access.java constructors...
-            // We need to ensure we use one that sets everything.
-
-            // Creating a temporary Access object to pass to DAO. ID 0 is ignored on insert
-            // usually.
-            Access newAccess = new Access(0, name, address, userFinal, portFinal, selectedWireguard.getId());
+            // Using constructor: id, name, address, sshUser, sshPort, wireguardId, credentialId
+            Access newAccess = new Access(0, name, address, userFinal, portFinal, selectedWireguard.getId(), credentialId);
             AccessDAO.insertAccess(newAccess);
 
             Platform.runLater(() -> handleCancel(event));

@@ -31,11 +31,22 @@ public class DatabaseSetup {
                 + "FOREIGN KEY (access_id) REFERENCES access(id) ON DELETE CASCADE"
                 + ");";
 
+        String sql_table_credentials = "CREATE TABLE IF NOT EXISTS credentials ("
+                + "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                + "name TEXT NOT NULL UNIQUE, "
+                + "username TEXT NOT NULL, "
+                + "type TEXT NOT NULL, "
+                + "secret TEXT NOT NULL"
+                + ");";
+
         try (Connection conn = DatabaseConnector.connect();
                 Statement stmt = conn.createStatement()) {
 
             stmt.execute(sql_table_wg);
             System.out.println("Tabel 'wireguards' siap.");
+
+            stmt.execute(sql_table_credentials);
+            System.out.println("Tabel 'credentials' siap.");
 
             stmt.execute(sql_table_access);
 
@@ -49,6 +60,12 @@ public class DatabaseSetup {
             try {
                 stmt.execute("ALTER TABLE access ADD COLUMN ssh_port INTEGER DEFAULT 22");
                 System.out.println("Added column ssh_port to access");
+            } catch (Exception e) {
+                // Column likely exists
+            }
+            try {
+                stmt.execute("ALTER TABLE access ADD COLUMN credential_id INTEGER");
+                System.out.println("Added column credential_id to access");
             } catch (Exception e) {
                 // Column likely exists
             }

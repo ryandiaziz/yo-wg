@@ -23,9 +23,10 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import atlantafx.base.theme.PrimerDark;
+import atlantafx.base.theme.PrimerLight;
 
 public class MainApp extends Application {
     private Stage primaryStage;
@@ -34,8 +35,24 @@ public class MainApp extends Application {
     private final TunnelManager tunnelManager = new SystemTunnelManager();
     private final HostCommunicator hostCommunicator = new SystemHostCommunicator();
 
+    private boolean isDarkMode = true;
+
     public Stage getPrimaryStage() {
         return primaryStage;
+    }
+
+    public boolean isDarkMode() {
+        return isDarkMode;
+    }
+
+    public void toggleTheme() {
+        if (isDarkMode) {
+            Application.setUserAgentStylesheet(new PrimerLight().getUserAgentStylesheet());
+            isDarkMode = false;
+        } else {
+            Application.setUserAgentStylesheet(new PrimerDark().getUserAgentStylesheet());
+            isDarkMode = true;
+        }
     }
 
     @Override
@@ -43,8 +60,14 @@ public class MainApp extends Application {
         // Setup database
         DatabaseSetup.createTable();
 
+        // Apply default modern theme
+        Application.setUserAgentStylesheet(new PrimerDark().getUserAgentStylesheet());
+
         this.primaryStage = stage;
-        this.primaryStage.setResizable(false);
+        this.primaryStage.setTitle("Yo-WG Tunnel Manager");
+        this.primaryStage.setMinWidth(800);
+        this.primaryStage.setMinHeight(600);
+        this.primaryStage.setResizable(true);
         this.showRootPage();
         this.primaryStage.show();
     }
@@ -57,8 +80,8 @@ public class MainApp extends Application {
             loader.setControllerFactory(param -> rootController);
             rootLayout = loader.load();
 
-            // Show the scene containing the root layout.
-            Scene scene = new Scene(rootLayout);
+            // Show the scene containing the root layout with default width and height
+            Scene scene = new Scene(rootLayout, 1000, 700);
             primaryStage.setScene(scene);
             showMainPage();
         } catch (Exception e) {
@@ -71,7 +94,7 @@ public class MainApp extends Application {
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(MainApp.class.getResource("views/main-view.fxml"));
             loader.setControllerFactory(param -> new MainController(tunnelManager, hostCommunicator));
-            VBox mainPage = loader.load();
+            Parent mainPage = loader.load();
             rootLayout.setCenter(mainPage);
         } catch (Exception e) {
             e.printStackTrace();
@@ -112,6 +135,54 @@ public class MainApp extends Application {
             loader.setControllerFactory(param -> wireguardController);
             AnchorPane mainPage = loader.load();
             rootLayout.setCenter(mainPage);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void showCredentialMenuPage() {
+        try {
+            com.ryan.yowg.controllers.CredentialController credentialController = new com.ryan.yowg.controllers.CredentialController(this);
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(MainApp.class.getResource("views/credentials-view.fxml"));
+            loader.setControllerFactory(param -> credentialController);
+            AnchorPane mainPage = loader.load();
+            rootLayout.setCenter(mainPage);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void showAddCredentialPage() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("views/add-credential-view.fxml"));
+            Parent parent = loader.load();
+
+            Stage stage = new Stage();
+            stage.setResizable(false);
+            stage.setTitle("Add Credential");
+            stage.initModality(Modality.WINDOW_MODAL);
+            stage.setScene(new Scene(parent));
+            stage.showAndWait();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void showEditCredentialPage(com.ryan.yowg.models.Credential credential) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("views/edit-credential-view.fxml"));
+            Parent parent = loader.load();
+
+            com.ryan.yowg.controllers.EditCredentialController controller = loader.getController();
+            controller.setCredential(credential);
+
+            Stage stage = new Stage();
+            stage.setResizable(false);
+            stage.setTitle("Edit Credential");
+            stage.initModality(Modality.WINDOW_MODAL);
+            stage.setScene(new Scene(parent));
+            stage.showAndWait();
         } catch (Exception e) {
             e.printStackTrace();
         }

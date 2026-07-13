@@ -10,7 +10,7 @@ public class AccessDAO {
 
     // Insert new access
     public static void insertAccess(Access access) {
-        String sql = "INSERT INTO access (name, address, ssh_user, ssh_port, wireguard_id) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO access (name, address, ssh_user, ssh_port, wireguard_id, credential_id) VALUES (?, ?, ?, ?, ?, ?)";
         try (Connection conn = DatabaseConnector.connect();
                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, access.getName());
@@ -18,6 +18,11 @@ public class AccessDAO {
             pstmt.setString(3, access.getSshUser());
             pstmt.setInt(4, access.getSshPort());
             pstmt.setInt(5, access.getWireguardId()); // Menghubungkan dengan wireguard
+            if (access.getCredentialId() != null) {
+                pstmt.setInt(6, access.getCredentialId());
+            } else {
+                pstmt.setNull(6, java.sql.Types.INTEGER);
+            }
             pstmt.executeUpdate();
             System.out.println("Access added: " + access.getName());
         } catch (SQLException e) {
@@ -33,13 +38,15 @@ public class AccessDAO {
                 Statement stmt = conn.createStatement();
                 ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
+                Integer credId = rs.getObject("credential_id") != null ? rs.getInt("credential_id") : null;
                 accessList.add(new Access(
                         rs.getInt("id"),
                         rs.getString("name"),
                         rs.getString("address"),
                         rs.getString("ssh_user"),
                         rs.getInt("ssh_port"),
-                        rs.getInt("wireguard_id") // wireguard_id yang terhubung
+                        rs.getInt("wireguard_id"), // wireguard_id yang terhubung
+                        credId
                 ));
             }
         } catch (SQLException e) {
@@ -57,13 +64,15 @@ public class AccessDAO {
             pstmt.setInt(1, wireguardId);
             ResultSet rs = pstmt.executeQuery();
             while (rs.next()) {
+                Integer credId = rs.getObject("credential_id") != null ? rs.getInt("credential_id") : null;
                 accessList.add(new Access(
                         rs.getInt("id"),
                         rs.getString("name"),
                         rs.getString("address"),
                         rs.getString("ssh_user"),
                         rs.getInt("ssh_port"),
-                        rs.getInt("wireguard_id")));
+                        rs.getInt("wireguard_id"),
+                        credId));
             }
         } catch (SQLException e) {
             System.out.println("Error fetching access by wireguard_id: " + e.getMessage());
@@ -73,7 +82,7 @@ public class AccessDAO {
 
     // Update access
     public static void updateAccess(Access access) {
-        String sql = "UPDATE access SET name = ?, address = ?, ssh_user = ?, ssh_port = ?, wireguard_id = ? WHERE id = ?";
+        String sql = "UPDATE access SET name = ?, address = ?, ssh_user = ?, ssh_port = ?, wireguard_id = ?, credential_id = ? WHERE id = ?";
         try (Connection conn = DatabaseConnector.connect();
                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, access.getName());
@@ -81,7 +90,12 @@ public class AccessDAO {
             pstmt.setString(3, access.getSshUser());
             pstmt.setInt(4, access.getSshPort());
             pstmt.setInt(5, access.getWireguardId()); // Menyimpan id Wireguard
-            pstmt.setInt(6, access.getId());
+            if (access.getCredentialId() != null) {
+                pstmt.setInt(6, access.getCredentialId());
+            } else {
+                pstmt.setNull(6, java.sql.Types.INTEGER);
+            }
+            pstmt.setInt(7, access.getId());
             pstmt.executeUpdate();
             System.out.println("Access updated: " + access.getName());
         } catch (SQLException e) {

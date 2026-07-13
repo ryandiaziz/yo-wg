@@ -5,6 +5,7 @@ module com.ryan.yowg {
     requires transitive javafx.base;
     requires typesafe.config;
     requires java.sql;
+    requires atlantafx.base;
 
 
     opens com.ryan.yowg to javafx.fxml;

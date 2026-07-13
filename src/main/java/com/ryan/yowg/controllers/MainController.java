@@ -8,13 +8,15 @@ import com.ryan.yowg.models.Wireguard;
 import com.ryan.yowg.services.TunnelManager;
 import com.ryan.yowg.services.HostCommunicator;
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
-import javafx.scene.control.RadioButton;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.VBox;
 
 import java.net.URL;
@@ -31,6 +33,7 @@ public class MainController implements Initializable {
         this.tunnelManager = tunnelManager;
         this.hostCommunicator = hostCommunicator;
     }
+
     @FXML
     private VBox listWGContainer;
     @FXML
@@ -40,27 +43,35 @@ public class MainController implements Initializable {
     @FXML
     private TextField searchField;
 
-    private ToggleGroup toggleGroup;
+    // New FXML binds
+    @FXML
+    private VBox placeholderView;
+    @FXML
+    private VBox actualDetailView;
+    @FXML
+    private Label lblTunnelName;
+    @FXML
+    private Label lblStatusBadge;
+    @FXML
+    private ToggleButton btnConnectionToggle;
+
     private static String activeWireguardName = null;
-    private boolean isRestoring = false;
+    private String selectedWireguardName = null;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        toggleGroup = new ToggleGroup();
-
         initializeWireguardList();
-
-        // Add listener only once
-        addToggleGroupListener();
 
         searchField.textProperty().addListener((observable, oldValue, newValue) -> {
             filterWireguardList(newValue);
         });
 
+        btnConnectionToggle.setOnAction(this::handleConnectionToggle);
+
         listRefresher = () -> {
-            if (toggleGroup != null && toggleGroup.getSelectedToggle() != null) {
-                toggleGroup.getSelectedToggle().setSelected(false);
-            }
+            Platform.runLater(() -> {
+                updateConnectionStateUI();
+            });
         };
     }
 
@@ -76,7 +87,6 @@ public class MainController implements Initializable {
         });
     }
 
-    // Inisialisasi daftar Wireguard
     private void initializeWireguardList() {
         CompletableFuture.runAsync(() -> {
             List<Wireguard> wireguards = WireguardDAO.getAllWireguards();
@@ -84,72 +94,65 @@ public class MainController implements Initializable {
         });
     }
 
-    // Mengisi daftar RadioButton untuk Wireguard
     private void populateWireguardList(List<Wireguard> wireguards) {
         listWGContainer.getChildren().clear();
-        isRestoring = true;
         for (Wireguard wireguard : wireguards) {
-            RadioButton radioButton = createWireguardRadioButton(wireguard);
-            if (wireguard.getName().equals(activeWireguardName)) {
-                radioButton.setSelected(true);
-                // Manually trigger detail loading because listener might skip logic if we don't
-                // be careful,
-                // BUT actually setting selected triggers listener.
-                // Our listener logic handles "isRestoring" to skip wg-quick up/down
-            }
-            listWGContainer.getChildren().add(radioButton);
+            Button itemButton = new Button(wireguard.getName());
+            itemButton.setMaxWidth(Double.MAX_VALUE);
+            itemButton.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+            itemButton.setPadding(new Insets(10, 15, 10, 15));
+            itemButton.setCursor(javafx.scene.Cursor.HAND);
+            
+            updateListItemStyle(itemButton, wireguard.getName().equals(selectedWireguardName));
+
+            itemButton.setOnAction(e -> {
+                selectedWireguardName = wireguard.getName();
+                loadWireguardDetails(selectedWireguardName);
+
+                // Update styling of all buttons in list
+                for (javafx.scene.Node node : listWGContainer.getChildren()) {
+                    if (node instanceof Button) {
+                        Button btn = (Button) node;
+                        updateListItemStyle(btn, btn.getText().equals(selectedWireguardName));
+                    }
+                }
+            });
+            listWGContainer.getChildren().add(itemButton);
         }
-        isRestoring = false;
 
-        // Ensure details are loaded if we have an active one
-        if (activeWireguardName != null) {
-            loadWireguardDetails(activeWireguardName);
-        }
+        updateConnectionStateUI();
     }
 
-    // Membuat RadioButton untuk setiap Wireguard
-    private RadioButton createWireguardRadioButton(Wireguard wireguard) {
-        RadioButton radioButton = new RadioButton(wireguard.getName());
-        radioButton.setPadding(new Insets(2));
-        radioButton.setToggleGroup(toggleGroup);
-        return radioButton;
-    }
-
-    // Menambahkan listener pada ToggleGroup
-    private void addToggleGroupListener() {
-        toggleGroup.selectedToggleProperty().addListener((observable, oldToggle, newToggle) -> {
-            if (isRestoring) {
-                return;
-            }
-
-            clearWireguardDetails();
-
-            if (oldToggle != null) {
-                handleWireguardToggle((RadioButton) oldToggle, "down");
-            }
-            if (newToggle != null) {
-                handleWireguardToggle((RadioButton) newToggle, "up");
-            }
-        });
-    }
-
-    // Menangani aksi pada perubahan pilihan Wireguard
-    private void handleWireguardToggle(RadioButton radioButton, String action) {
-        String wireguardName = radioButton.getText();
-        if ("up".equals(action)) {
-            tunnelManager.up(wireguardName);
+    private void updateListItemStyle(Button button, boolean isSelected) {
+        button.getStyleClass().removeAll("flat", "accent");
+        if (isSelected) {
+            button.getStyleClass().addAll("accent");
         } else {
-            tunnelManager.down(wireguardName);
+            button.getStyleClass().addAll("flat");
         }
+    }
 
-        if ("up".equals(action)) {
-            activeWireguardName = wireguardName;
-            loadWireguardDetails(wireguardName);
-        } else if ("down".equals(action)) {
-            if (wireguardName.equals(activeWireguardName)) {
+    private void handleConnectionToggle(ActionEvent event) {
+        if (selectedWireguardName == null) return;
+
+        boolean willConnect = btnConnectionToggle.isSelected();
+        if (willConnect) {
+            // If another tunnel is currently active, turn it down first
+            if (activeWireguardName != null && !activeWireguardName.equals(selectedWireguardName)) {
+                tunnelManager.down(activeWireguardName);
+            }
+            
+            tunnelManager.up(selectedWireguardName);
+            activeWireguardName = selectedWireguardName;
+            RootController.updateActiveTunnelStatus(activeWireguardName, true);
+        } else {
+            tunnelManager.down(selectedWireguardName);
+            if (selectedWireguardName.equals(activeWireguardName)) {
                 activeWireguardName = null;
             }
+            RootController.updateActiveTunnelStatus(null, false);
         }
+        updateConnectionStateUI();
     }
 
     private void loadWireguardDetails(String wireguardName) {
@@ -169,11 +172,44 @@ public class MainController implements Initializable {
                 }
                 
                 updateAccessContainer(accessList);
+                updateConnectionStateUI();
             });
         });
     }
 
-    // Mengupdate kontainer akses
+    private void updateConnectionStateUI() {
+        if (selectedWireguardName == null) {
+            placeholderView.setVisible(true);
+            placeholderView.setManaged(true);
+            actualDetailView.setVisible(false);
+            actualDetailView.setManaged(false);
+            return;
+        }
+
+        placeholderView.setVisible(false);
+        placeholderView.setManaged(false);
+        actualDetailView.setVisible(true);
+        actualDetailView.setManaged(true);
+
+        lblTunnelName.setText(selectedWireguardName);
+
+        boolean isActive = selectedWireguardName.equals(activeWireguardName);
+        btnConnectionToggle.setSelected(isActive);
+
+        btnConnectionToggle.getStyleClass().removeAll("danger", "accent");
+        if (isActive) {
+            btnConnectionToggle.setText("Disconnect");
+            btnConnectionToggle.getStyleClass().add("danger");
+            lblStatusBadge.setText("Connected");
+            lblStatusBadge.setStyle("-fx-text-fill: -color-success-fg;");
+        } else {
+            btnConnectionToggle.setText("Connect");
+            btnConnectionToggle.getStyleClass().add("accent");
+            lblStatusBadge.setText("Disconnected");
+            lblStatusBadge.setStyle("-fx-text-fill: -color-danger-fg;");
+        }
+    }
+
     private void updateAccessContainer(List<Access> accessList) {
         List<AccessComp> accessCompList = new ArrayList<>();
         for (int i = 0; i < accessList.size(); i++) {
@@ -183,18 +219,18 @@ public class MainController implements Initializable {
         accessContainer.getChildren().setAll(accessCompList);
     }
 
-    // Menghapus detail dan daftar akses Wireguard
-    private void clearWireguardDetails() {
-        wgDetailInfo.clear();
-        accessContainer.getChildren().clear();
-    }
-
     public static String getActiveWireguardName() {
         return activeWireguardName;
     }
 
     public static void setActiveWireguardName(String activeWireguardName) {
         MainController.activeWireguardName = activeWireguardName;
+        // Keep RootController active tunnel display synced
+        if (activeWireguardName != null) {
+            RootController.updateActiveTunnelStatus(activeWireguardName, true);
+        } else {
+            RootController.updateActiveTunnelStatus(null, false);
+        }
     }
 
     public static Runnable listRefresher;

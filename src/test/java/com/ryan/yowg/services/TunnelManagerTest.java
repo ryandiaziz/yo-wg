@@ -42,9 +42,9 @@ public class TunnelManagerTest {
         FakeHostCommunicator hostCommunicator = new FakeHostCommunicator();
 
         // Test SSH
-        hostCommunicator.openSSHTerminal("192.168.1.1", "admin", 2222);
+        hostCommunicator.openSSHTerminal("192.168.1.1", "admin", 2222, null, null);
         assertEquals(1, hostCommunicator.sshCalls.size());
-        assertEquals("admin@192.168.1.1:2222", hostCommunicator.sshCalls.get(0));
+        assertEquals("admin@192.168.1.1:2222 (Type: null)", hostCommunicator.sshCalls.get(0));
 
         // Test Ping Terminal
         hostCommunicator.openPingTerminal("10.0.0.1");
