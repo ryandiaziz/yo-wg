@@ -188,6 +188,22 @@ public class MainApp extends Application {
         }
     }
 
+    public void showGenerateKeyPage() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("views/generate-key-view.fxml"));
+            Parent parent = loader.load();
+
+            Stage stage = new Stage();
+            stage.setResizable(false);
+            stage.setTitle("Generate & Deploy SSH Key");
+            stage.initModality(Modality.WINDOW_MODAL);
+            stage.setScene(new Scene(parent));
+            stage.showAndWait();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public void showAddWgPage() {
         try {
             // Load FXML dialog

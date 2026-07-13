@@ -30,6 +30,8 @@ public class CredentialController implements Initializable {
     @FXML
     private Button btnAdd;
     @FXML
+    private Button btnAutoGenerate;
+    @FXML
     private TextField searchField;
 
     private List<Credential> allCredentials = new ArrayList<>();
@@ -43,6 +45,7 @@ public class CredentialController implements Initializable {
         loadCredentials();
         btnHome.setOnAction(this::handleHome);
         btnAdd.setOnAction(this::handleAdd);
+        btnAutoGenerate.setOnAction(this::handleAutoGenerate);
 
         searchField.textProperty().addListener((observable, oldValue, newValue) -> {
             filterList(newValue);
@@ -56,6 +59,11 @@ public class CredentialController implements Initializable {
     private void handleAdd(ActionEvent event) {
         mainApp.showAddCredentialPage();
         loadCredentials(); // Reload after add dialog closes
+    }
+
+    private void handleAutoGenerate(ActionEvent event) {
+        mainApp.showGenerateKeyPage();
+        loadCredentials(); // Reload after generation dialog closes
     }
 
     public void loadCredentials() {
