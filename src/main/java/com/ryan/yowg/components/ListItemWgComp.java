@@ -1,8 +1,8 @@
 package com.ryan.yowg.components;
 
-import com.ryan.yowg.dao.WireguardDAO;
+import com.ryan.yowg.services.TunnelManager;
 import com.ryan.yowg.models.Wireguard;
-import com.ryan.yowg.utils.Execute;
+import com.ryan.yowg.dao.WireguardDAO;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
@@ -15,7 +15,7 @@ import javafx.scene.shape.SVGPath;
 
 public class ListItemWgComp extends HBox {
 
-    public ListItemWgComp(Wireguard wireguard, Consumer<Wireguard> onEdit) {
+    public ListItemWgComp(Wireguard wireguard, Consumer<Wireguard> onEdit, TunnelManager tunnelManager) {
         Label nameLabel = new Label(wireguard.getName());
 
         // Edit Icon (Pencil)
@@ -42,7 +42,7 @@ public class ListItemWgComp extends HBox {
 
         // Tambahkan event listener ke tombol Delete
         deleteButton.setOnAction(event -> {
-            String result = Execute.deleteConfFile(wireguard.getName());
+            String result = tunnelManager.deleteConfig(wireguard.getName());
             System.out.println(result);
 
             // Hapus dari database jika file berhasil dihapus

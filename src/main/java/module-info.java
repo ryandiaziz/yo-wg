@@ -19,4 +19,5 @@ module com.ryan.yowg {
     opens com.ryan.yowg.controllers.resource to javafx.fxml;
     exports com.ryan.yowg.controllers.wireguard;
     opens com.ryan.yowg.controllers.wireguard to javafx.fxml;
+    exports com.ryan.yowg.services;
 }

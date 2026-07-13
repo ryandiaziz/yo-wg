@@ -1,8 +1,8 @@
 package com.ryan.yowg.controllers.wireguard;
 
-import com.ryan.yowg.dao.WireguardDAO;
+import com.ryan.yowg.services.TunnelManager;
 import com.ryan.yowg.models.Wireguard;
-import com.ryan.yowg.utils.Execute;
+import com.ryan.yowg.dao.WireguardDAO;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -13,6 +13,12 @@ import javafx.stage.Stage;
 import java.util.concurrent.CompletableFuture;
 
 public class AddWgController {
+    private final TunnelManager tunnelManager;
+
+    public AddWgController(TunnelManager tunnelManager) {
+        this.tunnelManager = tunnelManager;
+    }
+
     @FXML
     private TextField nameField;
     @FXML
@@ -40,7 +46,7 @@ public class AddWgController {
             return;
         }
 
-        String result = Execute.createConfFile(name, content);
+        String result = tunnelManager.createConfig(name, content);
         System.out.println(result);
         if (result.contains("successfully")) {
             CompletableFuture.runAsync(()->{

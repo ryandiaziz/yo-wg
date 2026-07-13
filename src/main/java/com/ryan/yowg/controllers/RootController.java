@@ -1,7 +1,7 @@
 package com.ryan.yowg.controllers;
 
 import com.ryan.yowg.MainApp;
-import com.ryan.yowg.utils.Execute;
+import com.ryan.yowg.services.TunnelManager;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -12,6 +12,7 @@ import java.util.ResourceBundle;
 
 public class RootController implements Initializable {
     private final MainApp mainApp;
+    private final TunnelManager tunnelManager;
     @FXML
     private MenuItem addNew;
     @FXML
@@ -25,8 +26,9 @@ public class RootController implements Initializable {
     @FXML
     private MenuItem menuWireguard;
 
-    public RootController(MainApp mainApp) {
+    public RootController(MainApp mainApp, TunnelManager tunnelManager) {
         this.mainApp = mainApp;
+        this.tunnelManager = tunnelManager;
     }
 
     @Override
@@ -46,7 +48,7 @@ public class RootController implements Initializable {
     private void handleShutdownWg(ActionEvent event) {
         String activeWg = MainController.getActiveWireguardName();
         if (activeWg != null) {
-            Execute.wgAction("down", activeWg);
+            tunnelManager.down(activeWg);
             MainController.setActiveWireguardName(null);
             if (MainController.listRefresher != null) {
                 MainController.listRefresher.run();
@@ -57,7 +59,7 @@ public class RootController implements Initializable {
     private void handleShutdownAndCloseWg(ActionEvent event) {
         String activeWg = MainController.getActiveWireguardName();
         if (activeWg != null) {
-            Execute.wgAction("down", activeWg);
+            tunnelManager.down(activeWg);
             MainController.setActiveWireguardName(null);
             if (MainController.listRefresher != null) {
                 MainController.listRefresher.run();

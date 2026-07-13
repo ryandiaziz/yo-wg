@@ -2,7 +2,7 @@ package com.ryan.yowg.controllers.wireguard;
 
 import com.ryan.yowg.dao.WireguardDAO;
 import com.ryan.yowg.models.Wireguard;
-import com.ryan.yowg.utils.Execute;
+import com.ryan.yowg.services.TunnelManager;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -13,6 +13,11 @@ import javafx.stage.Stage;
 import java.util.concurrent.CompletableFuture;
 
 public class EditWgController {
+    private final TunnelManager tunnelManager;
+
+    public EditWgController(TunnelManager tunnelManager) {
+        this.tunnelManager = tunnelManager;
+    }
     @FXML
     private TextField nameField;
     @FXML
@@ -65,9 +70,9 @@ public class EditWgController {
         // If name changes, we should probably delete the old file if we want to be
         // clean,
         // but typically mapped by ID or name. If name is vital for filename, we check.
-        // Execute.createConfFile uses 'name' for filename.
+        // tunnelManager.createConfig uses 'name' for filename.
 
-        String result = Execute.createConfFile(name, content);
+        String result = tunnelManager.createConfig(name, content);
         // Logic: if name changed, we might have an old file orphan.
         // But for this MVP fix, just ensuring new file is written is key.
 
@@ -75,7 +80,7 @@ public class EditWgController {
         if (result.contains("successfully")) {
             // Delete old file if name changed
             if (!oldName.equals(name)) {
-                String deleteResult = Execute.deleteConfFile(oldName);
+                String deleteResult = tunnelManager.deleteConfig(oldName);
                 System.out.println("Renamed: " + deleteResult);
             }
 

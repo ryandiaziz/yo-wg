@@ -5,7 +5,8 @@ import com.ryan.yowg.dao.AccessDAO;
 import com.ryan.yowg.dao.WireguardDAO;
 import com.ryan.yowg.models.Access;
 import com.ryan.yowg.models.Wireguard;
-import com.ryan.yowg.utils.Execute;
+import com.ryan.yowg.services.TunnelManager;
+import com.ryan.yowg.services.HostCommunicator;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -23,6 +24,13 @@ import java.util.ResourceBundle;
 import java.util.concurrent.CompletableFuture;
 
 public class MainController implements Initializable {
+    private final TunnelManager tunnelManager;
+    private final HostCommunicator hostCommunicator;
+
+    public MainController(TunnelManager tunnelManager, HostCommunicator hostCommunicator) {
+        this.tunnelManager = tunnelManager;
+        this.hostCommunicator = hostCommunicator;
+    }
     @FXML
     private VBox listWGContainer;
     @FXML
@@ -128,7 +136,11 @@ public class MainController implements Initializable {
     // Menangani aksi pada perubahan pilihan Wireguard
     private void handleWireguardToggle(RadioButton radioButton, String action) {
         String wireguardName = radioButton.getText();
-        Execute.wgAction(action, wireguardName);
+        if ("up".equals(action)) {
+            tunnelManager.up(wireguardName);
+        } else {
+            tunnelManager.down(wireguardName);
+        }
 
         if ("up".equals(action)) {
             activeWireguardName = wireguardName;
@@ -166,7 +178,7 @@ public class MainController implements Initializable {
         List<AccessComp> accessCompList = new ArrayList<>();
         for (int i = 0; i < accessList.size(); i++) {
             Access access = accessList.get(i);
-            accessCompList.add(new AccessComp(i + 1, access));
+            accessCompList.add(new AccessComp(i + 1, access, hostCommunicator));
         }
         accessContainer.getChildren().setAll(accessCompList);
     }

@@ -8,6 +8,12 @@ import com.ryan.yowg.controllers.resource.EditResourceController;
 import com.ryan.yowg.controllers.RootController;
 import com.ryan.yowg.controllers.wireguard.WireguardController;
 import com.ryan.yowg.controllers.wireguard.EditWgController;
+import com.ryan.yowg.controllers.wireguard.AddWgController;
+import com.ryan.yowg.controllers.MainController;
+import com.ryan.yowg.services.TunnelManager;
+import com.ryan.yowg.services.SystemTunnelManager;
+import com.ryan.yowg.services.HostCommunicator;
+import com.ryan.yowg.services.SystemHostCommunicator;
 import com.ryan.yowg.models.Wireguard;
 import com.ryan.yowg.dao.DatabaseSetup;
 import com.ryan.yowg.models.Resource;
@@ -24,6 +30,9 @@ import javafx.stage.Stage;
 public class MainApp extends Application {
     private Stage primaryStage;
     private BorderPane rootLayout;
+    
+    private final TunnelManager tunnelManager = new SystemTunnelManager();
+    private final HostCommunicator hostCommunicator = new SystemHostCommunicator();
 
     public Stage getPrimaryStage() {
         return primaryStage;
@@ -42,7 +51,7 @@ public class MainApp extends Application {
 
     public void showRootPage() {
         try {
-            RootController rootController = new RootController(this);
+            RootController rootController = new RootController(this, tunnelManager);
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(MainApp.class.getResource("views/root-view.fxml"));
             loader.setControllerFactory(param -> rootController);
@@ -61,6 +70,7 @@ public class MainApp extends Application {
         try {
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(MainApp.class.getResource("views/main-view.fxml"));
+            loader.setControllerFactory(param -> new MainController(tunnelManager, hostCommunicator));
             VBox mainPage = loader.load();
             rootLayout.setCenter(mainPage);
         } catch (Exception e) {
@@ -96,7 +106,7 @@ public class MainApp extends Application {
 
     public void showWireguardMenuPage() {
         try {
-            WireguardController wireguardController = new WireguardController(this);
+            WireguardController wireguardController = new WireguardController(this, tunnelManager);
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(MainApp.class.getResource("views/wireguards-view.fxml"));
             loader.setControllerFactory(param -> wireguardController);
@@ -111,6 +121,7 @@ public class MainApp extends Application {
         try {
             // Load FXML dialog
             FXMLLoader loader = new FXMLLoader(getClass().getResource("views/add-wg-view.fxml"));
+            loader.setControllerFactory(param -> new AddWgController(tunnelManager));
             Parent parent = loader.load();
 
             // Buat Stage baru untuk dialog
@@ -129,6 +140,7 @@ public class MainApp extends Application {
         try {
             // Load FXML dialog
             FXMLLoader loader = new FXMLLoader(getClass().getResource("views/edit-wg-view.fxml"));
+            loader.setControllerFactory(param -> new EditWgController(tunnelManager));
             Parent parent = loader.load();
 
             EditWgController controller = loader.getController();

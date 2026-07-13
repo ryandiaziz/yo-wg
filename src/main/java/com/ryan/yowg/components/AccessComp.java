@@ -6,7 +6,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import com.ryan.yowg.utils.Execute;
+import com.ryan.yowg.services.HostCommunicator;
 
 import com.ryan.yowg.models.Access;
 import com.ryan.yowg.models.Resource;
@@ -19,7 +19,10 @@ import javafx.scene.layout.Priority;
 import java.util.List;
 
 public class AccessComp extends HBox {
-    public AccessComp(int num, Access access) {
+    private final HostCommunicator hostCommunicator;
+
+    public AccessComp(int num, Access access, HostCommunicator hostCommunicator) {
+        this.hostCommunicator = hostCommunicator;
         Label numLabel = new Label(String.valueOf(num));
         numLabel.setMinWidth(20);
 
@@ -44,7 +47,7 @@ public class AccessComp extends HBox {
         sshButton.setGraphic(sshIcon);
         sshButton.setTooltip(new Tooltip("SSH"));
         sshButton.setOnAction(
-                e -> Execute.openSSHTerminal(access.getAddress(), access.getSshUser(), access.getSshPort()));
+                e -> hostCommunicator.openSSHTerminal(access.getAddress(), access.getSshUser(), access.getSshPort()));
 
         // Ping Terminal Icon (Pulse/Activity)
         SVGPath pingIcon = new SVGPath();
@@ -55,7 +58,7 @@ public class AccessComp extends HBox {
         Button pingButton = new Button();
         pingButton.setGraphic(pingIcon);
         pingButton.setTooltip(new Tooltip("Ping Terminal"));
-        pingButton.setOnAction(e -> Execute.openPingTerminal(access.getAddress()));
+        pingButton.setOnAction(e -> hostCommunicator.openPingTerminal(access.getAddress()));
 
         // Resources Icon (List/Folder)
         SVGPath resourcesIcon = new SVGPath();
@@ -94,7 +97,7 @@ public class AccessComp extends HBox {
                 urlLbl.setStyle("-fx-text-fill: grey;");
 
                 Button openBtn = new Button("Open");
-                openBtn.setOnAction(e -> Execute.openUrl(resource.getUrl()));
+                openBtn.setOnAction(e -> hostCommunicator.openUrl(resource.getUrl()));
 
                 VBox details = new VBox(nameLbl, urlLbl);
                 HBox.setHgrow(details, Priority.ALWAYS);

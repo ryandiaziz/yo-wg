@@ -4,6 +4,7 @@ import com.ryan.yowg.MainApp;
 import com.ryan.yowg.components.ListItemWgComp;
 import com.ryan.yowg.dao.WireguardDAO;
 import com.ryan.yowg.models.Wireguard;
+import com.ryan.yowg.services.TunnelManager;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -22,6 +23,7 @@ import java.util.stream.Collectors;
 
 public class WireguardController implements Initializable {
     private final MainApp mainApp;
+    private final TunnelManager tunnelManager;
     @FXML
     private VBox listWireguardContainer;
     @FXML
@@ -33,8 +35,9 @@ public class WireguardController implements Initializable {
 
     private List<Wireguard> allWireguardList = new ArrayList<>();
 
-    public WireguardController(MainApp mainApp) {
+    public WireguardController(MainApp mainApp, TunnelManager tunnelManager) {
         this.mainApp = mainApp;
+        this.tunnelManager = tunnelManager;
     }
 
     @Override
@@ -73,7 +76,7 @@ public class WireguardController implements Initializable {
         } else {
             for (Wireguard wg : list) {
                 listWireguardContainer.getChildren().add(
-                        new ListItemWgComp(wg, mainApp::showEditWgPage));
+                        new ListItemWgComp(wg, mainApp::showEditWgPage, tunnelManager));
             }
         }
     }
