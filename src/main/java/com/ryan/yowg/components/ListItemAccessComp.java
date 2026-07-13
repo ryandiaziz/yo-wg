@@ -19,7 +19,7 @@ public class ListItemAccessComp extends HBox {
     public ListItemAccessComp(Access access, Consumer<Access> onEdit) {
         this.access = access;
 
-        Label nameLabel = new Label(access.getName());
+        Label nameLabel = new Label(access.getName() + " (" + access.getAddress() + ")");
 
         // Edit Icon (Pencil)
         SVGPath editIcon = new SVGPath();

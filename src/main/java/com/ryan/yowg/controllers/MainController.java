@@ -142,7 +142,6 @@ public class MainController implements Initializable {
         }
     }
 
-    // Memuat detail Wireguard dan daftar akses terkait
     private void loadWireguardDetails(String wireguardName) {
         CompletableFuture.runAsync(() -> {
             Wireguard wireguard = WireguardDAO.findWireguardByName(wireguardName);
@@ -152,6 +151,13 @@ public class MainController implements Initializable {
             List<Access> accessList = AccessDAO.getAccessByWireguard(wireguard.getId());
             Platform.runLater(() -> {
                 wgDetailInfo.setText(wireguard.getContent());
+                
+                String query = searchField.getText();
+                if (query != null && !query.trim().isEmpty()) {
+                    String lowerQuery = query.toLowerCase();
+                    accessList.removeIf(access -> access.getName() == null || !access.getName().toLowerCase().contains(lowerQuery));
+                }
+                
                 updateAccessContainer(accessList);
             });
         });
