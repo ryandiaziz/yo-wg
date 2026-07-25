@@ -55,7 +55,6 @@ public class RootController implements Initializable {
     @FXML
     private Button btnQuickDisconnect;
 
-    private static RootController instance;
     private boolean isCollapsed = false;
 
     public RootController(MainApp mainApp, TunnelManager tunnelManager) {
@@ -63,16 +62,8 @@ public class RootController implements Initializable {
         this.tunnelManager = tunnelManager;
     }
 
-    public static void updateActiveTunnelStatus(String tunnelName, boolean isActive) {
-        if (instance != null) {
-            instance.updateTunnelStatus(tunnelName, isActive);
-        }
-    }
-
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        instance = this;
-
         btnDashboard.setOnAction(e -> mainApp.showMainPage());
         btnWireguards.setOnAction(e -> mainApp.showWireguardMenuPage());
         btnAccess.setOnAction(e -> mainApp.showAccessMenuPage());
@@ -85,13 +76,11 @@ public class RootController implements Initializable {
         // Set initial states
         updateThemeToggleBtn();
         
-        // Restore active tunnel status representation if any
-        String activeWg = MainController.getActiveWireguardName();
-        if (activeWg != null) {
-            updateTunnelStatus(activeWg, true);
-        } else {
-            updateTunnelStatus(null, false);
-        }
+        // Listen to tunnel manager state changes
+        tunnelManager.addStateChangeListener((tunnelName, isActive) -> updateTunnelStatus(tunnelName, isActive));
+        
+        // Initial state sync
+        updateTunnelStatus(tunnelManager.getActiveTunnelName(), tunnelManager.getActiveTunnelName() != null);
     }
 
     private void toggleSidebar() {
@@ -196,14 +185,10 @@ public class RootController implements Initializable {
     }
 
     private void handleQuickDisconnect(ActionEvent event) {
-        String activeWg = MainController.getActiveWireguardName();
+        String activeWg = tunnelManager.getActiveTunnelName();
         if (activeWg != null) {
             tunnelManager.down(activeWg);
-            MainController.setActiveWireguardName(null);
-            updateTunnelStatus(null, false);
-            if (MainController.listRefresher != null) {
-                MainController.listRefresher.run();
-            }
         }
     }
 }
+

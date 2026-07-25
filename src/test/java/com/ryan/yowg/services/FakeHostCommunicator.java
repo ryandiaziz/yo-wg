@@ -30,4 +30,19 @@ public class FakeHostCommunicator implements HostCommunicator {
     public boolean ping(String address) {
         return pingResponses.getOrDefault(address, true);
     }
+
+    @Override
+    public boolean isSshpassInstalled() {
+        return true;
+    }
+
+    @Override
+    public java.util.concurrent.CompletableFuture<Void> deploySharedKeyAsync(com.ryan.yowg.models.Access access, String password) {
+        return java.util.concurrent.CompletableFuture.completedFuture(null);
+    }
+
+    @Override
+    public java.util.concurrent.CompletableFuture<Void> generateAndDeployKeyAsync(String profileName, String address, String username, int port, String password) {
+        return java.util.concurrent.CompletableFuture.completedFuture(null);
+    }
 }

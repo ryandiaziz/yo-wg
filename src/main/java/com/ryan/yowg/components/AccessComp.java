@@ -196,131 +196,25 @@ public class AccessComp extends HBox {
                 return;
             }
 
-            // Run in background thread
-            CompletableFuture.runAsync(() -> {
-                try {
-                    // 1. Check sshpass
-                    Process whichProc = Runtime.getRuntime().exec(new String[]{"which", "sshpass"});
-                    if (whichProc.waitFor() != 0) {
+            hostCommunicator.deploySharedKeyAsync(access, password)
+                    .thenRun(() -> Platform.runLater(() -> {
+                        updateStyle.run();
+                        Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
+                        successAlert.setTitle("Success");
+                        successAlert.setHeaderText("SSH Key Deployed");
+                        successAlert.setContentText("SSH Key has been successfully registered on " + access.getName() + ".\nAutologin is now active!");
+                        successAlert.showAndWait();
+                    }))
+                    .exceptionally(ex -> {
                         Platform.runLater(() -> {
-                            Alert alert = new Alert(Alert.AlertType.ERROR);
-                            alert.setTitle("sshpass Missing");
-                            alert.setHeaderText("sshpass is required");
-                            alert.setContentText("The command 'sshpass' is required to deploy the key automatically.\n\nPlease install it using:\nsudo apt install sshpass");
-                            alert.showAndWait();
+                            Alert errorAlert = new Alert(Alert.AlertType.ERROR);
+                            errorAlert.setTitle("Deployment Failed");
+                            errorAlert.setHeaderText("Failed to setup SSH Key");
+                            errorAlert.setContentText("Error details:\n" + ex.getCause().getMessage());
+                            errorAlert.showAndWait();
                         });
-                        return;
-                    }
-
-                    // 2. Resolve/Create Shared Key Profile
-                    String home = System.getProperty("user.home");
-                    File sshDir = new File(home + "/.ssh/yo-wg");
-                    if (!sshDir.exists()) {
-                        sshDir.mkdirs();
-                    }
-
-                    String privateKeyPath = sshDir.getAbsolutePath() + "/id_yowg_shared";
-                    File privFile = new File(privateKeyPath);
-                    File pubFile = new File(privateKeyPath + ".pub");
-
-                    // Check if credential exists in DB
-                    com.ryan.yowg.models.Credential sharedCred = null;
-                    java.util.List<com.ryan.yowg.models.Credential> allCreds = com.ryan.yowg.dao.CredentialDAO.getAllCredentials();
-                    for (com.ryan.yowg.models.Credential c : allCreds) {
-                        if (c.getName().equals("Shared Yo-WG Key")) {
-                            sharedCred = c;
-                            break;
-                        }
-                    }
-
-                    // If files don't exist or credential is not in DB, generate it
-                    if (!privFile.exists() || !pubFile.exists() || sharedCred == null) {
-                        if (privFile.exists()) privFile.delete();
-                        if (pubFile.exists()) pubFile.delete();
-
-                        String[] keygenCmd = {
-                            "ssh-keygen", "-t", "ed25519",
-                            "-f", privateKeyPath,
-                            "-N", "", // No passphrase
-                            "-q"
-                        };
-                        Process keygenProc = Runtime.getRuntime().exec(keygenCmd);
-                        if (keygenProc.waitFor() != 0) {
-                            throw new Exception("Local keypair generation using ssh-keygen failed.");
-                        }
-
-                        if (sharedCred == null) {
-                            sharedCred = new com.ryan.yowg.models.Credential("Shared Yo-WG Key", "", "key", privateKeyPath);
-                            com.ryan.yowg.dao.CredentialDAO.insertCredential(sharedCred);
-                            
-                            // Re-fetch to get database ID
-                            allCreds = com.ryan.yowg.dao.CredentialDAO.getAllCredentials();
-                            for (com.ryan.yowg.models.Credential c : allCreds) {
-                                if (c.getName().equals("Shared Yo-WG Key")) {
-                                    sharedCred = c;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-
-                    // 3. Read public key
-                    String pubKeyContent = new String(Files.readAllBytes(pubFile.toPath())).trim();
-
-                    // 4. Deploy public key to server using sshpass
-                    String remoteSetupCmd = "mkdir -p ~/.ssh && chmod 700 ~/.ssh && echo '" + pubKeyContent + "' >> ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys";
-                    String[] sshCmd = {
-                        "sshpass", "-p", password,
-                        "ssh", "-p", String.valueOf(access.getSshPort()),
-                        "-o", "StrictHostKeyChecking=no",
-                        "-o", "ConnectTimeout=10",
-                        access.getSshUser() + "@" + access.getAddress(),
-                        remoteSetupCmd
-                    };
-
-                    Process sshProc = Runtime.getRuntime().exec(sshCmd);
-
-                    // Capture error stream
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(sshProc.getErrorStream()));
-                    StringBuilder errOutput = new StringBuilder();
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        errOutput.append(line).append("\n");
-                    }
-
-                    int exitCode = sshProc.waitFor();
-                    if (exitCode == 0) {
-                        // Success: link access node to shared credential ID
-                        final int credId = sharedCred.getId();
-                        access.setCredentialId(credId);
-                        com.ryan.yowg.dao.AccessDAO.updateAccess(access);
-
-                        Platform.runLater(() -> {
-                            updateStyle.run();
-                            Alert successAlert = new Alert(Alert.AlertType.INFORMATION);
-                            successAlert.setTitle("Success");
-                            successAlert.setHeaderText("SSH Key Deployed");
-                            successAlert.setContentText("SSH Key has been successfully registered on " + access.getName() + ".\nAutologin is now active!");
-                            successAlert.showAndWait();
-                        });
-                    } else {
-                        String errMsg = errOutput.toString().trim();
-                        if (errMsg.isEmpty()) {
-                            errMsg = "Unable to connect or authenticate. Please check password and server connectivity.";
-                        }
-                        throw new Exception(errMsg);
-                    }
-
-                } catch (Exception e) {
-                    Platform.runLater(() -> {
-                        Alert errorAlert = new Alert(Alert.AlertType.ERROR);
-                        errorAlert.setTitle("Deployment Failed");
-                        errorAlert.setHeaderText("Failed to setup SSH Key");
-                        errorAlert.setContentText("Error details:\n" + e.getMessage());
-                        errorAlert.showAndWait();
+                        return null;
                     });
-                }
-            });
         });
     }
 

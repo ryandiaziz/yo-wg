@@ -43,7 +43,6 @@ public class MainController implements Initializable {
     @FXML
     private TextField searchField;
 
-    // New FXML binds
     @FXML
     private VBox placeholderView;
     @FXML
@@ -55,7 +54,6 @@ public class MainController implements Initializable {
     @FXML
     private ToggleButton btnConnectionToggle;
 
-    private static String activeWireguardName = null;
     private String selectedWireguardName = null;
 
     @Override
@@ -68,11 +66,9 @@ public class MainController implements Initializable {
 
         btnConnectionToggle.setOnAction(this::handleConnectionToggle);
 
-        listRefresher = () -> {
-            Platform.runLater(() -> {
-                updateConnectionStateUI();
-            });
-        };
+        tunnelManager.addStateChangeListener((activeName, isActive) -> {
+            Platform.runLater(this::updateConnectionStateUI);
+        });
     }
 
     private void filterWireguardList(String query) {
@@ -137,20 +133,9 @@ public class MainController implements Initializable {
 
         boolean willConnect = btnConnectionToggle.isSelected();
         if (willConnect) {
-            // If another tunnel is currently active, turn it down first
-            if (activeWireguardName != null && !activeWireguardName.equals(selectedWireguardName)) {
-                tunnelManager.down(activeWireguardName);
-            }
-            
             tunnelManager.up(selectedWireguardName);
-            activeWireguardName = selectedWireguardName;
-            RootController.updateActiveTunnelStatus(activeWireguardName, true);
         } else {
             tunnelManager.down(selectedWireguardName);
-            if (selectedWireguardName.equals(activeWireguardName)) {
-                activeWireguardName = null;
-            }
-            RootController.updateActiveTunnelStatus(null, false);
         }
         updateConnectionStateUI();
     }
@@ -193,7 +178,7 @@ public class MainController implements Initializable {
 
         lblTunnelName.setText(selectedWireguardName);
 
-        boolean isActive = selectedWireguardName.equals(activeWireguardName);
+        boolean isActive = tunnelManager.isTunnelActive(selectedWireguardName);
         btnConnectionToggle.setSelected(isActive);
 
         btnConnectionToggle.getStyleClass().removeAll("danger", "accent");
@@ -218,20 +203,5 @@ public class MainController implements Initializable {
         }
         accessContainer.getChildren().setAll(accessCompList);
     }
-
-    public static String getActiveWireguardName() {
-        return activeWireguardName;
-    }
-
-    public static void setActiveWireguardName(String activeWireguardName) {
-        MainController.activeWireguardName = activeWireguardName;
-        // Keep RootController active tunnel display synced
-        if (activeWireguardName != null) {
-            RootController.updateActiveTunnelStatus(activeWireguardName, true);
-        } else {
-            RootController.updateActiveTunnelStatus(null, false);
-        }
-    }
-
-    public static Runnable listRefresher;
 }
+

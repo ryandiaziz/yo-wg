@@ -42,6 +42,7 @@ public class MainApp extends Application {
     
     private final TunnelManager tunnelManager = new SystemTunnelManager();
     private final HostCommunicator hostCommunicator = new SystemHostCommunicator();
+    private final com.ryan.yowg.dao.Repository repository = new com.ryan.yowg.dao.SqliteRepository();
 
     private boolean isDarkMode = true;
 
@@ -65,11 +66,11 @@ public class MainApp extends Application {
 
     @Override
     public void start(Stage stage) {
-        // Setup database
-        DatabaseSetup.createTable();
+        // Setup database storage module
+        repository.initialize();
 
         // Prompt for sudo password if not set
-        String sudoPassword = SettingsDAO.getSetting("sudo_password");
+        String sudoPassword = repository.getSetting("sudo_password");
         if (sudoPassword == null || sudoPassword.trim().isEmpty()) {
             promptSudoPassword();
         }
@@ -205,6 +206,7 @@ public class MainApp extends Application {
     public void showGenerateKeyPage() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("views/generate-key-view.fxml"));
+            loader.setControllerFactory(param -> new com.ryan.yowg.controllers.GenerateKeyController(hostCommunicator));
             Parent parent = loader.load();
 
             Stage stage = new Stage();

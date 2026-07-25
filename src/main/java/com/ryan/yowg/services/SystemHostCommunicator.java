@@ -1,12 +1,24 @@
 package com.ryan.yowg.services;
 
+import com.ryan.yowg.dao.AccessDAO;
+import com.ryan.yowg.dao.CredentialDAO;
+import com.ryan.yowg.models.Access;
+import com.ryan.yowg.models.Credential;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
+
+import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public class SystemHostCommunicator implements HostCommunicator {
 
-    private boolean isSshpassInstalled() {
+    @Override
+    public boolean isSshpassInstalled() {
         try {
             Process process = Runtime.getRuntime().exec(new String[]{"which", "sshpass"});
             return process.waitFor() == 0;
@@ -77,4 +89,171 @@ public class SystemHostCommunicator implements HostCommunicator {
             return false;
         }
     }
+
+    @Override
+    public CompletableFuture<Void> deploySharedKeyAsync(Access access, String password) {
+        return CompletableFuture.runAsync(() -> {
+            try {
+                if (!isSshpassInstalled()) {
+                    throw new IllegalStateException("The command 'sshpass' is required to deploy the key automatically.\n\nPlease install it using:\nsudo apt install sshpass");
+                }
+
+                String home = System.getProperty("user.home");
+                File sshDir = new File(home + "/.ssh/yo-wg");
+                if (!sshDir.exists()) {
+                    sshDir.mkdirs();
+                }
+
+                String privateKeyPath = sshDir.getAbsolutePath() + "/id_yowg_shared";
+                File privFile = new File(privateKeyPath);
+                File pubFile = new File(privateKeyPath + ".pub");
+
+                Credential sharedCred = null;
+                List<Credential> allCreds = CredentialDAO.getAllCredentials();
+                for (Credential c : allCreds) {
+                    if ("Shared Yo-WG Key".equals(c.getName())) {
+                        sharedCred = c;
+                        break;
+                    }
+                }
+
+                if (!privFile.exists() || !pubFile.exists() || sharedCred == null) {
+                    if (privFile.exists()) privFile.delete();
+                    if (pubFile.exists()) pubFile.delete();
+
+                    String[] keygenCmd = {
+                        "ssh-keygen", "-t", "ed25519",
+                        "-f", privateKeyPath,
+                        "-N", "",
+                        "-q"
+                    };
+                    Process keygenProc = Runtime.getRuntime().exec(keygenCmd);
+                    if (keygenProc.waitFor() != 0) {
+                        throw new RuntimeException("Local keypair generation using ssh-keygen failed.");
+                    }
+
+                    if (sharedCred == null) {
+                        sharedCred = new Credential("Shared Yo-WG Key", "", "key", privateKeyPath);
+                        CredentialDAO.insertCredential(sharedCred);
+
+                        allCreds = CredentialDAO.getAllCredentials();
+                        for (Credential c : allCreds) {
+                            if ("Shared Yo-WG Key".equals(c.getName())) {
+                                sharedCred = c;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                String pubKeyContent = new String(Files.readAllBytes(pubFile.toPath())).trim();
+                String remoteSetupCmd = "mkdir -p ~/.ssh && chmod 700 ~/.ssh && echo '" + pubKeyContent + "' >> ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys";
+                String[] sshCmd = {
+                    "sshpass", "-p", password,
+                    "ssh", "-p", String.valueOf(access.getSshPort()),
+                    "-o", "StrictHostKeyChecking=no",
+                    "-o", "ConnectTimeout=10",
+                    access.getSshUser() + "@" + access.getAddress(),
+                    remoteSetupCmd
+                };
+
+                Process sshProc = Runtime.getRuntime().exec(sshCmd);
+                BufferedReader reader = new BufferedReader(new InputStreamReader(sshProc.getErrorStream()));
+                StringBuilder errOutput = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    errOutput.append(line).append("\n");
+                }
+
+                int exitCode = sshProc.waitFor();
+                if (exitCode == 0) {
+                    access.setCredentialId(sharedCred.getId());
+                    AccessDAO.updateAccess(access);
+                } else {
+                    String errMsg = errOutput.toString().trim();
+                    if (errMsg.isEmpty()) {
+                        errMsg = "Unable to connect or authenticate. Please check password and server connectivity.";
+                    }
+                    throw new RuntimeException(errMsg);
+                }
+            } catch (Exception e) {
+                throw new RuntimeException(e.getMessage(), e);
+            }
+        });
+    }
+
+    @Override
+    public CompletableFuture<Void> generateAndDeployKeyAsync(String profileName, String address, String username, int port, String password) {
+        return CompletableFuture.runAsync(() -> {
+            try {
+                if (!isSshpassInstalled()) {
+                    throw new IllegalStateException("The command 'sshpass' is required to deploy the key automatically.\n\nPlease install it using:\nsudo apt install sshpass");
+                }
+
+                String home = System.getProperty("user.home");
+                File sshDir = new File(home + "/.ssh/yo-wg");
+                if (!sshDir.exists()) {
+                    sshDir.mkdirs();
+                }
+
+                String keyName = profileName.replaceAll("[^a-zA-Z0-9_]", "_");
+                String privateKeyPath = sshDir.getAbsolutePath() + "/id_yowg_" + keyName;
+
+                File privFile = new File(privateKeyPath);
+                File pubFile = new File(privateKeyPath + ".pub");
+                if (privFile.exists()) privFile.delete();
+                if (pubFile.exists()) pubFile.delete();
+
+                String[] keygenCmd = {
+                    "ssh-keygen", "-t", "ed25519",
+                    "-f", privateKeyPath,
+                    "-N", "",
+                    "-q"
+                };
+
+                Process keygenProc = Runtime.getRuntime().exec(keygenCmd);
+                if (keygenProc.waitFor() != 0) {
+                    throw new RuntimeException("Local keypair generation using ssh-keygen failed.");
+                }
+
+                if (!pubFile.exists()) {
+                    throw new RuntimeException("Public key file was not created successfully.");
+                }
+                String pubKeyContent = new String(Files.readAllBytes(pubFile.toPath())).trim();
+
+                String remoteSetupCmd = "mkdir -p ~/.ssh && chmod 700 ~/.ssh && echo '" + pubKeyContent + "' >> ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys";
+                String[] sshCmd = {
+                    "sshpass", "-p", password,
+                    "ssh", "-p", String.valueOf(port),
+                    "-o", "StrictHostKeyChecking=no",
+                    "-o", "ConnectTimeout=10",
+                    username + "@" + address,
+                    remoteSetupCmd
+                };
+
+                Process sshProc = Runtime.getRuntime().exec(sshCmd);
+                BufferedReader reader = new BufferedReader(new InputStreamReader(sshProc.getErrorStream()));
+                StringBuilder errOutput = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    errOutput.append(line).append("\n");
+                }
+
+                int exitCode = sshProc.waitFor();
+                if (exitCode == 0) {
+                    Credential cred = new Credential(profileName, username, "key", privateKeyPath);
+                    CredentialDAO.insertCredential(cred);
+                } else {
+                    String errMsg = errOutput.toString().trim();
+                    if (errMsg.isEmpty()) {
+                        errMsg = "Unable to connect or authenticate. Please check the address, username, or password.";
+                    }
+                    throw new RuntimeException(errMsg);
+                }
+            } catch (Exception e) {
+                throw new RuntimeException(e.getMessage(), e);
+            }
+        });
+    }
 }
+

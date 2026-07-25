@@ -2,8 +2,13 @@ package com.ryan.yowg.services;
 
 import com.ryan.yowg.dao.SettingsDAO;
 import java.io.*;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class SystemTunnelManager implements TunnelManager {
+
+    private String activeTunnelName = null;
+    private final List<TunnelStateListener> stateListeners = new CopyOnWriteArrayList<>();
 
     private void runCommand(String command) {
         try {
@@ -29,12 +34,55 @@ public class SystemTunnelManager implements TunnelManager {
 
     @Override
     public void up(String name) {
+        if (activeTunnelName != null && !activeTunnelName.equals(name)) {
+            down(activeTunnelName);
+        }
         wgAction("up", name);
+        activeTunnelName = name;
+        notifyStateChange(activeTunnelName, true);
     }
 
     @Override
     public void down(String name) {
         wgAction("down", name);
+        if (name.equals(activeTunnelName)) {
+            activeTunnelName = null;
+        }
+        notifyStateChange(activeTunnelName, activeTunnelName != null);
+    }
+
+    @Override
+    public String getActiveTunnelName() {
+        return activeTunnelName;
+    }
+
+    @Override
+    public boolean isTunnelActive(String name) {
+        return name != null && name.equals(activeTunnelName);
+    }
+
+    @Override
+    public void addStateChangeListener(TunnelStateListener listener) {
+        if (listener != null && !stateListeners.contains(listener)) {
+            stateListeners.add(listener);
+        }
+    }
+
+    @Override
+    public void removeStateChangeListener(TunnelStateListener listener) {
+        if (listener != null) {
+            stateListeners.remove(listener);
+        }
+    }
+
+    private void notifyStateChange(String tunnelName, boolean isActive) {
+        for (TunnelStateListener listener : stateListeners) {
+            try {
+                listener.onTunnelStateChanged(tunnelName, isActive);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     private void wgAction(String action, String wgName) {
@@ -136,3 +184,4 @@ public class SystemTunnelManager implements TunnelManager {
         }
     }
 }
+

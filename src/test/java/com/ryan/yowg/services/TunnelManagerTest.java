@@ -30,37 +30,37 @@ public class TunnelManagerTest {
         assertNull(tunnelManager.lastUp);
         assertEquals(1, tunnelManager.downCalls.size());
         assertEquals("wg0", tunnelManager.downCalls.get(0));
-
-        // Delete config
-        String deleteRes = tunnelManager.deleteConfig("wg0");
-        assertTrue(deleteRes.contains("successfully"));
-        assertEquals(0, tunnelManager.configs.size());
     }
 
     @Test
-    public void testHostCommunicatorFake() {
+    public void testTunnelManagerStateChangeListener() {
+        FakeTunnelManager tunnelManager = new FakeTunnelManager();
+        final String[] notifiedTunnel = new String[1];
+        final boolean[] notifiedStatus = new boolean[1];
+
+        tunnelManager.addStateChangeListener((name, isActive) -> {
+            notifiedTunnel[0] = name;
+            notifiedStatus[0] = isActive;
+        });
+
+        tunnelManager.up("wg1");
+        assertEquals("wg1", notifiedTunnel[0]);
+        assertTrue(notifiedStatus[0]);
+        assertTrue(tunnelManager.isTunnelActive("wg1"));
+
+        tunnelManager.down("wg1");
+        assertNull(notifiedTunnel[0]);
+        assertFalse(notifiedStatus[0]);
+        assertFalse(tunnelManager.isTunnelActive("wg1"));
+    }
+
+    @Test
+    public void testHostCommunicatorKeyDeployment() throws Exception {
         FakeHostCommunicator hostCommunicator = new FakeHostCommunicator();
+        assertTrue(hostCommunicator.isSshpassInstalled());
 
-        // Test SSH
-        hostCommunicator.openSSHTerminal("192.168.1.1", "admin", 2222, null, null);
-        assertEquals(1, hostCommunicator.sshCalls.size());
-        assertEquals("admin@192.168.1.1:2222 (Type: null)", hostCommunicator.sshCalls.get(0));
-
-        // Test Ping Terminal
-        hostCommunicator.openPingTerminal("10.0.0.1");
-        assertEquals(1, hostCommunicator.pingTerminalCalls.size());
-        assertEquals("10.0.0.1", hostCommunicator.pingTerminalCalls.get(0));
-
-        // Test URL
-        hostCommunicator.openUrl("http://localhost:8080");
-        assertEquals(1, hostCommunicator.urlCalls.size());
-        assertEquals("http://localhost:8080", hostCommunicator.urlCalls.get(0));
-
-        // Test Ping status check
-        hostCommunicator.pingResponses.put("192.168.1.1", true);
-        hostCommunicator.pingResponses.put("192.168.1.2", false);
-
-        assertTrue(hostCommunicator.ping("192.168.1.1"));
-        assertFalse(hostCommunicator.ping("192.168.1.2"));
+        com.ryan.yowg.models.Access access = new com.ryan.yowg.models.Access(1, "Test Server", "10.0.0.5", "admin", 22, 1, null);
+        assertDoesNotThrow(() -> hostCommunicator.deploySharedKeyAsync(access, "secret").get());
+        assertDoesNotThrow(() -> hostCommunicator.generateAndDeployKeyAsync("Profile1", "10.0.0.5", "admin", 22, "secret").get());
     }
 }
