@@ -83,6 +83,11 @@
                                     <Insets bottom="10.0" left="5.0" right="5.0" top="10.0" />
                                  </padding>
                                  <children>
+                                    <HBox alignment="CENTER_RIGHT">
+                                       <children>
+                                          <Button fx:id="btnAddAccess" text="+ Add Access" styleClass="accent" style="-fx-cursor: hand;" />
+                                       </children>
+                                    </HBox>
                                     <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" styleClass="edge-to-edge">
                                        <content>
                                           <VBox fx:id="accessContainer" spacing="10.0" />

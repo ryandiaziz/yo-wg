@@ -1,5 +1,6 @@
 package com.ryan.yowg.controllers.resource;
 
+import com.ryan.yowg.components.SearchableComboBoxUtil;
 import com.ryan.yowg.dao.AccessDAO;
 import com.ryan.yowg.dao.ResourceDAO;
 import com.ryan.yowg.models.Access;
@@ -30,8 +31,7 @@ public class EditResourceController {
     @FXML
     private Button cancelButton;
     @FXML
-    private Label titleLabel; // Assuming we can change title or add a label if needed, but for now reuse
-                              // fields
+    private Label titleLabel;
 
     private Resource resource;
 
@@ -53,34 +53,20 @@ public class EditResourceController {
 
     @FXML
     public void initialize() {
-        saveButton.setText("Update"); // Change button text
+        saveButton.setText("Update");
         saveButton.setOnAction(this::handleSubmit);
         cancelButton.setOnAction(this::handleCancel);
 
-        // Load data wireguards ke ComboBox
         this.loadAccesses();
     }
 
     private void loadAccesses() {
         List<Access> accessList = AccessDAO.getAllAccess();
         ObservableList<Access> accessObservableList = FXCollections.observableArrayList(accessList);
-        accessComboBox.setItems(accessObservableList);
 
-        // Set converter untuk menampilkan nama Access di ComboBox
-        accessComboBox.setConverter(new javafx.util.StringConverter<>() {
-            @Override
-            public String toString(Access access) {
-                return access != null ? access.getName() : "";
-            }
-
-            @Override
-            public Access fromString(String string) {
-                return accessObservableList.stream()
-                        .filter(w -> w.getName().equals(string))
-                        .findFirst()
-                        .orElse(null);
-            }
-        });
+        SearchableComboBoxUtil.makeSearchable(accessComboBox, accessObservableList, a ->
+                a != null ? a.getName() : ""
+        );
     }
 
     public void handleSubmit(ActionEvent event) {

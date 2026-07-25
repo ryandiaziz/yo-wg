@@ -1,8 +1,10 @@
 package com.ryan.yowg;
 
+import com.ryan.yowg.controllers.access.AddAccessController;
 import com.ryan.yowg.controllers.access.EditAccessController;
 import com.ryan.yowg.models.Access;
 import com.ryan.yowg.controllers.access.AccessController;
+import com.ryan.yowg.controllers.resource.AddResourceController;
 import com.ryan.yowg.controllers.resource.ResourceController;
 import com.ryan.yowg.controllers.resource.EditResourceController;
 import com.ryan.yowg.controllers.RootController;
@@ -108,7 +110,7 @@ public class MainApp extends Application {
         try {
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(MainApp.class.getResource("views/main-view.fxml"));
-            loader.setControllerFactory(param -> new MainController(tunnelManager, hostCommunicator));
+            loader.setControllerFactory(param -> new MainController(this, tunnelManager, hostCommunicator));
             Parent mainPage = loader.load();
             rootLayout.setCenter(mainPage);
         } catch (Exception e) {
@@ -262,10 +264,19 @@ public class MainApp extends Application {
     }
 
     public void showAddAccessPage() {
+        showAddAccessPage(null);
+    }
+
+    public void showAddAccessPage(Wireguard preselectedWg) {
         try {
             // Load FXML dialog
             FXMLLoader loader = new FXMLLoader(getClass().getResource("views/add-access-view.fxml"));
             Parent parent = loader.load();
+
+            if (preselectedWg != null) {
+                AddAccessController controller = loader.getController();
+                controller.setPreselectedWireguard(preselectedWg);
+            }
 
             // Buat Stage baru untuk dialog
             Stage stage = new Stage();
@@ -301,10 +312,19 @@ public class MainApp extends Application {
     }
 
     public void showAddResourcePage() {
+        showAddResourcePage(null);
+    }
+
+    public void showAddResourcePage(Access preselectedAccess) {
         try {
             // Load FXML dialog
             FXMLLoader loader = new FXMLLoader(getClass().getResource("views/add-resource-view.fxml"));
             Parent parent = loader.load();
+
+            if (preselectedAccess != null) {
+                AddResourceController controller = loader.getController();
+                controller.setPreselectedAccess(preselectedAccess);
+            }
 
             // Buat Stage baru untuk dialog
             Stage stage = new Stage();

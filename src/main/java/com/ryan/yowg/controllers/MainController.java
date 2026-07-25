@@ -1,5 +1,6 @@
 package com.ryan.yowg.controllers;
 
+import com.ryan.yowg.MainApp;
 import com.ryan.yowg.components.AccessComp;
 import com.ryan.yowg.dao.AccessDAO;
 import com.ryan.yowg.dao.WireguardDAO;
@@ -26,12 +27,18 @@ import java.util.ResourceBundle;
 import java.util.concurrent.CompletableFuture;
 
 public class MainController implements Initializable {
+    private final MainApp mainApp;
     private final TunnelManager tunnelManager;
     private final HostCommunicator hostCommunicator;
 
-    public MainController(TunnelManager tunnelManager, HostCommunicator hostCommunicator) {
+    public MainController(MainApp mainApp, TunnelManager tunnelManager, HostCommunicator hostCommunicator) {
+        this.mainApp = mainApp;
         this.tunnelManager = tunnelManager;
         this.hostCommunicator = hostCommunicator;
+    }
+
+    public MainController(TunnelManager tunnelManager, HostCommunicator hostCommunicator) {
+        this(null, tunnelManager, hostCommunicator);
     }
 
     @FXML
@@ -42,6 +49,8 @@ public class MainController implements Initializable {
     private VBox accessContainer;
     @FXML
     private TextField searchField;
+    @FXML
+    private Button btnAddAccess;
 
     @FXML
     private VBox placeholderView;
@@ -66,9 +75,26 @@ public class MainController implements Initializable {
 
         btnConnectionToggle.setOnAction(this::handleConnectionToggle);
 
+        if (btnAddAccess != null) {
+            btnAddAccess.setOnAction(this::handleAddAccess);
+        }
+
         tunnelManager.addStateChangeListener((activeName, isActive) -> {
             Platform.runLater(this::updateConnectionStateUI);
         });
+    }
+
+    private void handleAddAccess(ActionEvent event) {
+        Wireguard selectedWg = null;
+        if (selectedWireguardName != null) {
+            selectedWg = WireguardDAO.findWireguardByName(selectedWireguardName);
+        }
+        if (mainApp != null) {
+            mainApp.showAddAccessPage(selectedWg);
+            if (selectedWireguardName != null) {
+                loadWireguardDetails(selectedWireguardName);
+            }
+        }
     }
 
     private void filterWireguardList(String query) {
@@ -204,9 +230,13 @@ public class MainController implements Initializable {
         List<AccessComp> accessCompList = new ArrayList<>();
         for (int i = 0; i < accessList.size(); i++) {
             Access access = accessList.get(i);
-            accessCompList.add(new AccessComp(i + 1, access, hostCommunicator));
+            AccessComp comp = new AccessComp(i + 1, access, hostCommunicator, mainApp, () -> {
+                if (selectedWireguardName != null) {
+                    loadWireguardDetails(selectedWireguardName);
+                }
+            });
+            accessCompList.add(comp);
         }
         accessContainer.getChildren().setAll(accessCompList);
     }
 }
-

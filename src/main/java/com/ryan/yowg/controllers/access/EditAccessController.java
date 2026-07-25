@@ -1,5 +1,6 @@
 package com.ryan.yowg.controllers.access;
 
+import com.ryan.yowg.components.SearchableComboBoxUtil;
 import com.ryan.yowg.dao.AccessDAO;
 import com.ryan.yowg.dao.WireguardDAO;
 import com.ryan.yowg.models.Access;
@@ -71,7 +72,7 @@ public class EditAccessController {
         saveButton.setOnAction(this::handleSubmit);
         cancelButton.setOnAction(this::handleCancel);
 
-        // Load data wireguards ke ComboBox
+        // Load data wireguards & credentials ke ComboBox
         loadWireguards();
         loadCredentials();
     }
@@ -79,44 +80,19 @@ public class EditAccessController {
     private void loadCredentials() {
         List<com.ryan.yowg.models.Credential> credentials = com.ryan.yowg.dao.CredentialDAO.getAllCredentials();
         ObservableList<com.ryan.yowg.models.Credential> credentialOptions = FXCollections.observableArrayList(credentials);
-        credentialComboBox.setItems(credentialOptions);
 
-        credentialComboBox.setConverter(new javafx.util.StringConverter<>() {
-            @Override
-            public String toString(com.ryan.yowg.models.Credential cred) {
-                return cred != null ? cred.getName() + " (" + cred.getUsername() + ")" : "";
-            }
-
-            @Override
-            public com.ryan.yowg.models.Credential fromString(String string) {
-                return credentialOptions.stream()
-                        .filter(c -> (c.getName() + " (" + c.getUsername() + ")").equals(string))
-                        .findFirst()
-                        .orElse(null);
-            }
-        });
+        SearchableComboBoxUtil.makeSearchable(credentialComboBox, credentialOptions, cred ->
+                cred != null ? cred.getName() + " (" + cred.getUsername() + ")" : ""
+        );
     }
 
     private void loadWireguards() {
         List<Wireguard> wireguards = WireguardDAO.getAllWireguards();
         ObservableList<Wireguard> wireguardOptions = FXCollections.observableArrayList(wireguards);
-        wireguardComboBox.setItems(wireguardOptions);
 
-        // Set converter untuk menampilkan nama Wireguard di ComboBox
-        wireguardComboBox.setConverter(new javafx.util.StringConverter<>() {
-            @Override
-            public String toString(Wireguard wireguard) {
-                return wireguard != null ? wireguard.getName() : "";
-            }
-
-            @Override
-            public Wireguard fromString(String string) {
-                return wireguardOptions.stream()
-                        .filter(w -> w.getName().equals(string))
-                        .findFirst()
-                        .orElse(null);
-            }
-        });
+        SearchableComboBoxUtil.makeSearchable(wireguardComboBox, wireguardOptions, wg ->
+                wg != null ? wg.getName() : ""
+        );
     }
 
     public void handleSubmit(ActionEvent event) {

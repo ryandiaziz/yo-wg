@@ -60,10 +60,26 @@ public class ListItemResourceComp extends HBox {
             });
         });
 
-        this.getChildren().addAll(nameLabel, editButton, deleteButton);
+        HBox actionsBox = new HBox(4, editButton, deleteButton);
+        actionsBox.setStyle("-fx-alignment: center-right;");
+        actionsBox.setOpacity(0.35);
+
+        final String defaultStyle = "-fx-border-color: -color-border-default; -fx-border-radius: 6; -fx-background-radius: 6; -fx-background-color: -color-bg-default; -fx-alignment: center-left;";
+        final String hoverStyle = "-fx-border-color: -color-border-default; -fx-border-radius: 6; -fx-background-radius: 6; -fx-background-color: -color-bg-subtle; -fx-alignment: center-left;";
+
+        this.setOnMouseEntered(e -> {
+            this.setStyle(hoverStyle);
+            actionsBox.setOpacity(1.0);
+        });
+        this.setOnMouseExited(e -> {
+            this.setStyle(defaultStyle);
+            actionsBox.setOpacity(0.35);
+        });
+
+        this.getChildren().addAll(nameLabel, actionsBox);
         this.setSpacing(10);
         this.setPadding(new Insets(6, 12, 6, 12));
-        this.setStyle("-fx-border-color: -color-border-default; -fx-border-radius: 6; -fx-background-radius: 6; -fx-background-color: -color-bg-default; -fx-alignment: center-left;");
+        this.setStyle(defaultStyle);
     }
 
     public Resource getResource() {

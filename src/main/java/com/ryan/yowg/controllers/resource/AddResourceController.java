@@ -1,5 +1,6 @@
 package com.ryan.yowg.controllers.resource;
 
+import com.ryan.yowg.components.SearchableComboBoxUtil;
 import com.ryan.yowg.dao.AccessDAO;
 import com.ryan.yowg.dao.ResourceDAO;
 import com.ryan.yowg.models.Access;
@@ -29,35 +30,40 @@ public class AddResourceController {
     @FXML
     private Button cancelButton;
 
+    private Access preselectedAccess;
+
+    public void setPreselectedAccess(Access access) {
+        this.preselectedAccess = access;
+        if (accessComboBox != null && accessComboBox.getItems() != null && access != null) {
+            for (Access a : accessComboBox.getItems()) {
+                if (a.getId() == access.getId()) {
+                    accessComboBox.setValue(a);
+                    break;
+                }
+            }
+        }
+    }
+
     @FXML
     public void initialize() {
         saveButton.setOnAction(this::handleSubmit);
         cancelButton.setOnAction(this::handleCancel);
 
-        // Load data wireguards ke ComboBox
+        // Load data accesses ke ComboBox
         this.loadAccesses();
+
+        if (preselectedAccess != null) {
+            setPreselectedAccess(preselectedAccess);
+        }
     }
 
     private void loadAccesses() {
         List<Access> accessList = AccessDAO.getAllAccess();
         ObservableList<Access> accessObservableList = FXCollections.observableArrayList(accessList);
-        accessComboBox.setItems(accessObservableList);
 
-        // Set converter untuk menampilkan nama Wireguard di ComboBox
-        accessComboBox.setConverter(new javafx.util.StringConverter<>() {
-            @Override
-            public String toString(Access access) {
-                return access != null ? access.getName() : "";
-            }
-
-            @Override
-            public Access fromString(String string) {
-                return accessObservableList.stream()
-                        .filter(w -> w.getName().equals(string))
-                        .findFirst()
-                        .orElse(null);
-            }
-        });
+        SearchableComboBoxUtil.makeSearchable(accessComboBox, accessObservableList, a ->
+                a != null ? a.getName() : ""
+        );
     }
 
     public void handleSubmit(ActionEvent event) {
@@ -70,8 +76,6 @@ public class AddResourceController {
             System.out.println("Name, Url, and Access must not be empty!");
             return;
         }
-
-        System.out.println(name + " " + url + " " + selectedAccess.getName());
 
         CompletableFuture.runAsync(() -> {
             ResourceDAO.insertResource(new Resource(name, url, selectedAccess.getId()));
