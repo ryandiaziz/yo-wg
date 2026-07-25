@@ -18,7 +18,7 @@
          </padding>
          <children>
             <!-- Top Controls (Branding + Collapse Toggle) -->
-            <HBox alignment="CENTER_LEFT" spacing="10.0">
+            <HBox fx:id="topControlsBox" alignment="CENTER_LEFT" spacing="10.0">
                <children>
                   <!-- Brand Area -->
                   <VBox fx:id="brandBox" spacing="2.0" HBox.hgrow="ALWAYS">
@@ -74,8 +74,8 @@
             <!-- Connection Quick Card -->
             <VBox fx:id="activeWgCard" spacing="5.0" style="-fx-background-color: -color-bg-default; -fx-border-color: -color-border-default; -fx-border-radius: 6; -fx-background-radius: 6; -fx-padding: 10;">
                <children>
-                  <Label text="ACTIVE TUNNEL" style="-fx-font-size: 10px; -fx-text-fill: -color-fg-muted; -fx-font-weight: bold;" />
-                  <HBox alignment="CENTER_LEFT" spacing="6.0">
+                  <Label fx:id="lblActiveHeader" text="ACTIVE TUNNEL" style="-fx-font-size: 10px; -fx-text-fill: -color-fg-muted; -fx-font-weight: bold;" />
+                  <HBox fx:id="activeWgStatusBox" alignment="CENTER_LEFT" spacing="6.0">
                      <children>
                         <SVGPath fx:id="statusDot" content="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z" scaleX="0.4" scaleY="0.4" style="-fx-fill: -color-danger-fg;" />
                         <Label fx:id="activeWgLabel" text="Disconnected" style="-fx-font-size: 12px; -fx-font-weight: bold;" />

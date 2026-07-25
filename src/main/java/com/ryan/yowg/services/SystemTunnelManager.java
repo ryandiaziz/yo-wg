@@ -48,17 +48,63 @@ public class SystemTunnelManager implements TunnelManager {
         if (name.equals(activeTunnelName)) {
             activeTunnelName = null;
         }
-        notifyStateChange(activeTunnelName, activeTunnelName != null);
+        notifyStateChange(name, false);
     }
 
     @Override
     public String getActiveTunnelName() {
+        String sudoPassword = SettingsDAO.getSetting("sudo_password");
+        if (sudoPassword != null && !sudoPassword.trim().isEmpty()) {
+            try {
+                String command = "echo " + sudoPassword + " | sudo -S wg show interfaces";
+                ProcessBuilder builder = new ProcessBuilder("/bin/bash", "-c", command);
+                Process process = builder.start();
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+                    String output = reader.readLine();
+                    if (output != null && !output.trim().isEmpty()) {
+                        String[] activeIfaces = output.trim().split("\\s+");
+                        if (activeIfaces.length > 0) {
+                            activeTunnelName = activeIfaces[0];
+                            return activeTunnelName;
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                // Ignore & fallback
+            }
+        }
         return activeTunnelName;
     }
 
     @Override
     public boolean isTunnelActive(String name) {
-        return name != null && name.equals(activeTunnelName);
+        if (name == null || name.trim().isEmpty()) {
+            return false;
+        }
+
+        String sudoPassword = SettingsDAO.getSetting("sudo_password");
+        if (sudoPassword != null && !sudoPassword.trim().isEmpty()) {
+            try {
+                String command = "echo " + sudoPassword + " | sudo -S wg show " + name;
+                ProcessBuilder builder = new ProcessBuilder("/bin/bash", "-c", command);
+                Process process = builder.start();
+                int exitCode = process.waitFor();
+                if (exitCode == 0) {
+                    activeTunnelName = name;
+                    return true;
+                }
+            } catch (Exception e) {
+                // Fallback check
+            }
+        }
+
+        File sysNet = new File("/sys/class/net/" + name);
+        if (sysNet.exists()) {
+            activeTunnelName = name;
+            return true;
+        }
+
+        return name.equals(activeTunnelName);
     }
 
     @Override
@@ -184,4 +230,3 @@ public class SystemTunnelManager implements TunnelManager {
         }
     }
 }
-

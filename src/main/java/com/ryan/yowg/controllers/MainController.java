@@ -18,6 +18,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
 import java.net.URL;
@@ -80,7 +82,10 @@ public class MainController implements Initializable {
         }
 
         tunnelManager.addStateChangeListener((activeName, isActive) -> {
-            Platform.runLater(this::updateConnectionStateUI);
+            Platform.runLater(() -> {
+                updateConnectionStateUI();
+                filterWireguardList(searchField != null ? searchField.getText() : "");
+            });
         });
     }
 
@@ -117,32 +122,51 @@ public class MainController implements Initializable {
     private void initializeWireguardList() {
         CompletableFuture.runAsync(() -> {
             List<Wireguard> wireguards = WireguardDAO.getAllWireguards();
-            Platform.runLater(() -> populateWireguardList(wireguards));
+            String activeName = tunnelManager.getActiveTunnelName();
+            Platform.runLater(() -> {
+                if (selectedWireguardName == null && activeName != null) {
+                    selectedWireguardName = activeName;
+                }
+                populateWireguardList(wireguards);
+                if (selectedWireguardName != null) {
+                    loadWireguardDetails(selectedWireguardName);
+                }
+            });
         });
     }
 
     private void populateWireguardList(List<Wireguard> wireguards) {
         listWGContainer.getChildren().clear();
         for (Wireguard wireguard : wireguards) {
-            Button itemButton = new Button(wireguard.getName());
+            boolean isActive = tunnelManager.isTunnelActive(wireguard.getName());
+            boolean isSelected = wireguard.getName().equals(selectedWireguardName);
+
+            Label nameLabel = new Label(wireguard.getName());
+            nameLabel.setStyle("-fx-font-weight: bold;");
+            HBox.setHgrow(nameLabel, Priority.ALWAYS);
+
+            HBox graphicBox = new HBox(8);
+            graphicBox.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
+            graphicBox.getChildren().add(nameLabel);
+
+            if (isActive) {
+                Label activeBadge = new Label("● Active");
+                activeBadge.setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: -color-success-fg;");
+                graphicBox.getChildren().add(activeBadge);
+            }
+
+            Button itemButton = new Button();
+            itemButton.setGraphic(graphicBox);
             itemButton.setMaxWidth(Double.MAX_VALUE);
-            itemButton.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
             itemButton.setPadding(new Insets(10, 15, 10, 15));
             itemButton.setCursor(javafx.scene.Cursor.HAND);
-            
-            updateListItemStyle(itemButton, wireguard.getName().equals(selectedWireguardName));
+
+            updateListItemStyle(itemButton, isSelected);
 
             itemButton.setOnAction(e -> {
                 selectedWireguardName = wireguard.getName();
                 loadWireguardDetails(selectedWireguardName);
-
-                // Update styling of all buttons in list
-                for (javafx.scene.Node node : listWGContainer.getChildren()) {
-                    if (node instanceof Button) {
-                        Button btn = (Button) node;
-                        updateListItemStyle(btn, btn.getText().equals(selectedWireguardName));
-                    }
-                }
+                populateWireguardList(wireguards);
             });
             listWGContainer.getChildren().add(itemButton);
         }
@@ -216,11 +240,13 @@ public class MainController implements Initializable {
         if (isActive) {
             btnConnectionToggle.setText("Disconnect");
             btnConnectionToggle.getStyleClass().add("danger");
+            btnConnectionToggle.setStyle("-fx-background-color: -color-danger-emphasis; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;");
             lblStatusBadge.setText("Connected");
             lblStatusBadge.setStyle("-fx-text-fill: -color-success-fg;");
         } else {
             btnConnectionToggle.setText("Connect");
             btnConnectionToggle.getStyleClass().add("accent");
+            btnConnectionToggle.setStyle("-fx-background-color: -color-accent-emphasis; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;");
             lblStatusBadge.setText("Disconnected");
             lblStatusBadge.setStyle("-fx-text-fill: -color-danger-fg;");
         }
