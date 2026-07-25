@@ -79,7 +79,12 @@ public class MainController implements Initializable {
             } else {
                 wireguards = WireguardDAO.findWireguardsByAccessName(query);
             }
-            Platform.runLater(() -> populateWireguardList(wireguards));
+            Platform.runLater(() -> {
+                populateWireguardList(wireguards);
+                if (selectedWireguardName != null) {
+                    loadWireguardDetails(selectedWireguardName);
+                }
+            });
         });
     }
 
