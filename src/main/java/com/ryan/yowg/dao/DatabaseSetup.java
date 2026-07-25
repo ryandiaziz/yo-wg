@@ -39,11 +39,19 @@ public class DatabaseSetup {
                 + "secret TEXT NOT NULL"
                 + ");";
 
+        String sql_table_settings = "CREATE TABLE IF NOT EXISTS settings ("
+                + "key TEXT PRIMARY KEY, "
+                + "value TEXT NOT NULL"
+                + ");";
+
         try (Connection conn = DatabaseConnector.connect();
                 Statement stmt = conn.createStatement()) {
 
             stmt.execute(sql_table_wg);
             System.out.println("Tabel 'wireguards' siap.");
+
+            stmt.execute(sql_table_settings);
+            System.out.println("Tabel 'settings' siap.");
 
             stmt.execute(sql_table_credentials);
             System.out.println("Tabel 'credentials' siap.");

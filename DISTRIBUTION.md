@@ -1,51 +1,51 @@
 # Panduan Distribusi Aplikasi (Khusus Developer)
 
-Dokumen ini menjelaskan cara memaketkan aplikasi **yo-wg** menjadi file `.zip` yang siap dibagikan ke pengguna Linux.
+Dokumen ini menjelaskan dua metode untuk mendistribusikan aplikasi **Yo-WG** kepada pengguna Linux:
+1. **(Recommended)** Memaketkan aplikasi menjadi file `.deb` native Linux menggunakan `jpackage`.
+2. **(Legacy)** Memaketkan aplikasi menjadi `.zip` (Fat JAR).
 
-## Struktur Paket Distribusi
+---
 
-Script packaging akan membuat sebuah file ZIP berisi:
+## 1. Distribusi Native (.deb) - Sangat Direkomendasikan
 
-1.  **yo-wg.jar**: File aplikasi utama (hasil build maven yg direname).
-2.  **install.sh**: Script helper untuk menginstall aplikasi ke komputer user.
-3.  **yo-wg.desktop**: Template shortcut menu aplikasi.
-4.  **README.txt**: Instruksi singkat untuk user.
+Metode ini akan membungkus aplikasi beserta Java Runtime Environment (JRE) ke dalam installer native Debian/Ubuntu (`.deb`). Pengguna tidak perlu menginstall Java secara terpisah.
 
-## Cara Membuat Paket Distribusi
+### Cara Membuat Paket (.deb)
+Jalankan script berikut dari root folder project:
+```bash
+./scripts/build-deb.sh
+```
 
-Cukup jalankan satu perintah berikut dari root folder project:
+**Hasil Akhir:** File installer akan digenerate dan disimpan di `dist/yo-wg_1.0.0_amd64.deb`.
 
+### Cara Install oleh Pengguna
+Bagikan file `.deb` tersebut kepada pengguna, lalu mereka cukup menginstallnya dengan perintah:
+```bash
+sudo dpkg -i dist/yo-wg_1.0.0_amd64.deb
+```
+Aplikasi akan secara otomatis terinstall di `/opt/yo-wg/` dan icon shortcut akan muncul di menu aplikasi OS pengguna.
+
+---
+
+## 2. Distribusi Legacy (.zip / Fat JAR)
+
+Metode ini hanya meng-compile source code Java dan menyertakan script helper. Pengguna **diwajibkan** sudah memiliki Java 21+ yang terinstall di sistem mereka.
+
+### Cara Membuat Paket (.zip)
+Jalankan script berikut dari root folder project:
 ```bash
 ./scripts/package.sh
 ```
 
-### Apa yang dilakukan script ini?
+**Hasil Akhir:** File ZIP akan digenerate dan disimpan di `dist/yo-wg-linux-installer.zip`.
 
-1.  Menjalankan `mvn clean package` untuk memastikan build terbaru.
-2.  Membuat folder `dist/yo-wg-linux-installer`.
-3.  Menyalin `target/yo-wg-1.0-SNAPSHOT-jar-with-dependencies.jar` menjadi `yo-wg.jar`.
-4.  Menyertakan script helper dari folder `assets/`.
-5.  Mengkompres folder tersebut menjadi `dist/yo-wg-linux-installer.zip`.
-
-## Hasil Akhir
-
-Setelah script selesai, Anda akan mendapatkan file:
-**`dist/yo-wg-linux-installer.zip`**
-
-Inilah file yang Anda bagikan ke pengguna.
-
----
-
-## Panduan untuk Pengguna (User Guide)
-
-Jika pengguna bertanya cara install, berikan instruksi ini (juga ada di dalam `README.txt` zip):
-
-1.  Extract file `yo-wg-linux-installer.zip`.
-2.  Buka terminal di dalam folder hasil extract.
-3.  Jalankan:
-    ```bash
-    chmod +x install.sh
-    ./install.sh
-    ```
-4.  Selesai! Aplikasi "Yo-WG" akan muncul di menu aplikasi komputer mereka.
-5.  **PENTING**: User wajib mengedit konfigurasi di `~/Program/yo-wg/conf/application.conf` untuk memasukkan password sudo mereka.
+### Cara Install oleh Pengguna (Legacy)
+1. Extract file `yo-wg-linux-installer.zip`.
+2. Buka terminal di dalam folder hasil extract.
+3. Jalankan script installer:
+   ```bash
+   chmod +x install.sh
+   ./install.sh
+   ```
+4. Aplikasi akan di-copy ke folder `~/Program/yo-wg` dan shortcut desktop akan ditambahkan.
+5. **PENTING**: User harus mengedit `~/Program/yo-wg/conf/application.conf` untuk setup awal (jika menggunakan config kustom).

@@ -27,7 +27,14 @@ target/
 ### NetBeans ###
 /nbproject/private/
 /nbbuild/
+### Build Outputs ###
 /dist/
+*.deb
+*.zip
+*.jar
+!/dist/yo-wg-linux-installer/yo-wg.desktop
+!/dist/yo-wg-linux-installer/install.sh
+!/dist/yo-wg-linux-installer/README.txt
 /nbdist/
 /.nb-gradle/
 build/

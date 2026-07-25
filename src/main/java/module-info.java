@@ -3,7 +3,6 @@ module com.ryan.yowg {
     requires transitive javafx.fxml;
     requires transitive javafx.graphics;
     requires transitive javafx.base;
-    requires typesafe.config;
     requires java.sql;
     requires atlantafx.base;
 

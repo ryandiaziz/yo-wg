@@ -1,6 +1,6 @@
 package com.ryan.yowg.services;
 
-import com.ryan.yowg.utils.ReadConfig;
+import com.ryan.yowg.dao.SettingsDAO;
 import java.io.*;
 
 public class SystemTunnelManager implements TunnelManager {
@@ -38,7 +38,7 @@ public class SystemTunnelManager implements TunnelManager {
     }
 
     private void wgAction(String action, String wgName) {
-        String command = "echo " + ReadConfig.getPassword() + " | sudo -S wg-quick " + action + " " + wgName;
+        String command = "echo " + SettingsDAO.getSetting("sudo_password") + " | sudo -S wg-quick " + action + " " + wgName;
 
         System.out.println(command);
         String[] cmd = { "/bin/bash", "-c", command };
@@ -69,7 +69,7 @@ public class SystemTunnelManager implements TunnelManager {
         }
 
         File file = new File("/tmp", name + ".conf");
-        String moveCommand = "echo " + ReadConfig.getPassword() + " | sudo -S mv /tmp/" + name
+        String moveCommand = "echo " + SettingsDAO.getSetting("sudo_password") + " | sudo -S mv /tmp/" + name
                 + ".conf /etc/wireguard/";
         System.out.println(moveCommand);
 
@@ -78,7 +78,7 @@ public class SystemTunnelManager implements TunnelManager {
             System.out.println("File " + file.getAbsolutePath() + " created successfully!");
             runCommand(moveCommand);
 
-            String chmodCommand = "echo " + ReadConfig.getPassword() + " | sudo -S chmod 600 /etc/wireguard/" + name
+            String chmodCommand = "echo " + SettingsDAO.getSetting("sudo_password") + " | sudo -S chmod 600 /etc/wireguard/" + name
                     + ".conf";
 
             runCommand(chmodCommand);
@@ -105,7 +105,7 @@ public class SystemTunnelManager implements TunnelManager {
         }
 
         try {
-            String command = "echo " + ReadConfig.getPassword() + " | sudo -S rm " + file.getAbsolutePath();
+            String command = "echo " + SettingsDAO.getSetting("sudo_password") + " | sudo -S rm " + file.getAbsolutePath();
             System.out.println("Executing command: " + command);
 
             ProcessBuilder builder = new ProcessBuilder("/bin/bash", "-c", command);

@@ -25,6 +25,14 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.Label;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.layout.VBox;
+import java.util.Optional;
+import com.ryan.yowg.dao.SettingsDAO;
 import atlantafx.base.theme.PrimerDark;
 import atlantafx.base.theme.PrimerLight;
 
@@ -59,6 +67,12 @@ public class MainApp extends Application {
     public void start(Stage stage) {
         // Setup database
         DatabaseSetup.createTable();
+
+        // Prompt for sudo password if not set
+        String sudoPassword = SettingsDAO.getSetting("sudo_password");
+        if (sudoPassword == null || sudoPassword.trim().isEmpty()) {
+            promptSudoPassword();
+        }
 
         // Apply default modern theme
         Application.setUserAgentStylesheet(new PrimerDark().getUserAgentStylesheet());
@@ -321,6 +335,35 @@ public class MainApp extends Application {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private void promptSudoPassword() {
+        Dialog<String> dialog = new Dialog<>();
+        dialog.setTitle("Initial Setup");
+        dialog.setHeaderText("Welcome to Yo-WG!\nPlease enter your system (sudo) password to allow WireGuard management.");
+        
+        PasswordField pwd = new PasswordField();
+        pwd.setPromptText("Sudo Password");
+        
+        VBox vbox = new VBox(10);
+        vbox.getChildren().add(new Label("Sudo Password:"));
+        vbox.getChildren().add(pwd);
+        dialog.getDialogPane().setContent(vbox);
+        
+        ButtonType saveButtonType = new ButtonType("Save", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(saveButtonType, ButtonType.CANCEL);
+        
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == saveButtonType) {
+                return pwd.getText();
+            }
+            return null;
+        });
+        
+        Optional<String> result = dialog.showAndWait();
+        result.ifPresent(password -> {
+            SettingsDAO.saveSetting("sudo_password", password);
+        });
     }
 
     public static void main(String[] args) {
