@@ -1,6 +1,7 @@
 package com.ryan.yowg.controllers;
 
 import com.ryan.yowg.MainApp;
+import com.ryan.yowg.dao.SettingsDAO;
 import com.ryan.yowg.services.TunnelManager;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -14,11 +15,13 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.SVGPath;
 
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.concurrent.CompletableFuture;
 
 public class RootController implements Initializable {
     private final MainApp mainApp;
@@ -91,6 +94,13 @@ public class RootController implements Initializable {
         setupHoverEffect(btnCredentials);
         setupHoverEffect(btnThemeToggle);
 
+        // Restore persisted sidebar collapsed state
+        String savedState = SettingsDAO.getSetting("sidebar_collapsed");
+        if ("true".equals(savedState)) {
+            isCollapsed = true;
+            Platform.runLater(this::applySidebarLayout);
+        }
+
         // Set initial states
         updateThemeToggleBtn();
 
@@ -108,6 +118,9 @@ public class RootController implements Initializable {
 
     private void toggleSidebar() {
         isCollapsed = !isCollapsed;
+        CompletableFuture.runAsync(() -> {
+            SettingsDAO.saveSetting("sidebar_collapsed", String.valueOf(isCollapsed));
+        });
         applySidebarLayout();
     }
 
@@ -143,7 +156,14 @@ public class RootController implements Initializable {
             activeWgLabel.setVisible(false);
             activeWgLabel.setManaged(false);
             activeWgStatusBox.setAlignment(Pos.CENTER);
+
             activeWgCard.setPadding(new Insets(6, 4, 6, 4));
+            activeWgCard.setPrefWidth(54);
+            activeWgCard.setMaxWidth(54);
+            activeWgCard.setAlignment(Pos.CENTER);
+
+            btnQuickDisconnect.setPrefWidth(36);
+            btnQuickDisconnect.setMaxWidth(36);
 
             collapseIcon.setContent("M8.59 16.59L10 18l6-6-6-6-1.41 1.41L13.17 12z"); // Expand right caret
         } else {
@@ -177,7 +197,14 @@ public class RootController implements Initializable {
             activeWgLabel.setVisible(true);
             activeWgLabel.setManaged(true);
             activeWgStatusBox.setAlignment(Pos.CENTER_LEFT);
+
             activeWgCard.setPadding(new Insets(10));
+            activeWgCard.setPrefWidth(Region.USE_COMPUTED_SIZE);
+            activeWgCard.setMaxWidth(Double.MAX_VALUE);
+            activeWgCard.setAlignment(Pos.TOP_LEFT);
+
+            btnQuickDisconnect.setPrefWidth(Region.USE_COMPUTED_SIZE);
+            btnQuickDisconnect.setMaxWidth(Double.MAX_VALUE);
 
             collapseIcon.setContent("M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"); // Collapse left caret
         }
