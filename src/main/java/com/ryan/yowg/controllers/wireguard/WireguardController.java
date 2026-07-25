@@ -5,6 +5,7 @@ import com.ryan.yowg.components.ListItemWgComp;
 import com.ryan.yowg.dao.WireguardDAO;
 import com.ryan.yowg.models.Wireguard;
 import com.ryan.yowg.services.TunnelManager;
+import com.ryan.yowg.services.TunnelSyncService;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -29,6 +30,8 @@ public class WireguardController implements Initializable {
     @FXML
     private Button btnHome;
     @FXML
+    private Button btnSync;
+    @FXML
     private Button btnAdd;
     @FXML
     private TextField tfSearch;
@@ -45,6 +48,9 @@ public class WireguardController implements Initializable {
         setListWireguard();
         btnHome.setOnAction(this::handleHome);
         btnAdd.setOnAction(this::handleAdd);
+        if (btnSync != null) {
+            btnSync.setOnAction(this::handleSync);
+        }
         
         tfSearch.textProperty().addListener((observable, oldValue, newValue) -> {
             filterList(newValue);
@@ -58,6 +64,27 @@ public class WireguardController implements Initializable {
     private void handleAdd(ActionEvent event) {
         mainApp.showAddWgPage();
     }
+
+    private void handleSync(ActionEvent event) {
+        if (btnSync != null) {
+            btnSync.setDisable(true);
+            btnSync.setText("Syncing...");
+        }
+
+        CompletableFuture.runAsync(() -> {
+            int count = TunnelSyncService.syncSystemTunnels();
+            System.out.println("[WireguardController] Sync completed. Tunnels updated/added: " + count);
+
+            Platform.runLater(() -> {
+                setListWireguard();
+                if (btnSync != null) {
+                    btnSync.setDisable(false);
+                    btnSync.setText("Sync System Tunnels");
+                }
+            });
+        });
+    }
+
 
     private void setListWireguard() {
         CompletableFuture.runAsync(() -> {

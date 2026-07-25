@@ -8,4 +8,6 @@
 ## Architectural Decision Records
 
 - [0001-dashboard-in-place-management-and-searchable-combobox.md](file:///home/ryan/Projects/yo-wg/docs/adr/0001-dashboard-in-place-management-and-searchable-combobox.md)
+- [0004-auto-sync-system-wireguard-tunnels.md](file:///home/ryan/Projects/yo-wg/docs/adr/0004-auto-sync-system-wireguard-tunnels.md)
+
 

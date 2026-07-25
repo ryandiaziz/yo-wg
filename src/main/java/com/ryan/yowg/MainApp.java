@@ -72,7 +72,11 @@ public class MainApp extends Application {
         // Setup database storage module
         repository.initialize();
 
+        // Auto-sync system WireGuard configs if application is opened for the first time
+        java.util.concurrent.CompletableFuture.runAsync(com.ryan.yowg.services.TunnelSyncService::syncIfFirstRun);
+
         // Prompt for sudo password if not set
+
         String sudoPassword = repository.getSetting("sudo_password");
         if (sudoPassword == null || sudoPassword.trim().isEmpty()) {
             promptSudoPassword();

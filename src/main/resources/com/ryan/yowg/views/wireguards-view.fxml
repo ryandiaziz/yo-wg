@@ -20,7 +20,9 @@
                <children>
                   <Label text="Wireguard Tunnels" style="-fx-font-size: 18px; -fx-font-weight: bold;" HBox.hgrow="ALWAYS" maxWidth="1.7976931348623157E308" />
                   <Button fx:id="btnHome" mnemonicParsing="false" text="Dashboard" styleClass="flat" style="-fx-cursor: hand;" />
+                  <Button fx:id="btnSync" mnemonicParsing="false" text="Sync System Tunnels" styleClass="button" style="-fx-cursor: hand;" />
                   <Button fx:id="btnAdd" mnemonicParsing="false" text="+ New Tunnel" styleClass="accent" style="-fx-cursor: hand;" />
+
                </children>
             </HBox>
             
