@@ -126,11 +126,25 @@ public class WireguardDAO {
     }
 
     public static List<Wireguard> findWireguardsByAccessName(String accessName) {
+        return searchWireguards(accessName);
+    }
+
+    public static List<Wireguard> searchWireguards(String query) {
         List<Wireguard> wireguards = new ArrayList<>();
-        String sql = "SELECT DISTINCT w.* FROM wireguards w JOIN access a ON w.id = a.wireguard_id WHERE a.name LIKE ?";
+        if (query == null || query.trim().isEmpty()) {
+            return getAllWireguards();
+        }
+        String sql = "SELECT DISTINCT w.* FROM wireguards w " +
+                     "LEFT JOIN access a ON w.id = a.wireguard_id " +
+                     "WHERE w.name LIKE ? OR w.note LIKE ? OR w.content LIKE ? OR a.name LIKE ? OR a.address LIKE ?";
         try (Connection conn = DatabaseConnector.connect();
                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, "%" + accessName + "%");
+            String q = "%" + query.trim() + "%";
+            pstmt.setString(1, q);
+            pstmt.setString(2, q);
+            pstmt.setString(3, q);
+            pstmt.setString(4, q);
+            pstmt.setString(5, q);
             ResultSet rs = pstmt.executeQuery();
             while (rs.next()) {
                 wireguards.add(new Wireguard(
@@ -140,7 +154,7 @@ public class WireguardDAO {
                         rs.getString("content")));
             }
         } catch (SQLException e) {
-            System.out.println("Error finding wireguards by access name: " + e.getMessage());
+            System.out.println("Error searching wireguards: " + e.getMessage());
         }
         return wireguards;
     }

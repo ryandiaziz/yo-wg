@@ -40,4 +40,18 @@ public class Wireguard {
     public void setContent(String content) {
         this.content = content;
     }
+
+    public String getTunnelAddress() {
+        if (content == null) return null;
+        for (String line : content.split("\\r?\\n")) {
+            line = line.trim();
+            if (line.toLowerCase().startsWith("address")) {
+                String[] parts = line.split("=", 2);
+                if (parts.length > 1) {
+                    return parts[1].trim();
+                }
+            }
+        }
+        return null;
+    }
 }

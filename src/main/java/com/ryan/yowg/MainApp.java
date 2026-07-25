@@ -64,6 +64,7 @@ public class MainApp extends Application {
             Application.setUserAgentStylesheet(new PrimerDark().getUserAgentStylesheet());
             isDarkMode = true;
         }
+        SettingsDAO.saveSetting("theme_mode", isDarkMode ? "dark" : "light");
     }
 
     @Override
@@ -77,8 +78,15 @@ public class MainApp extends Application {
             promptSudoPassword();
         }
 
-        // Apply default modern theme
-        Application.setUserAgentStylesheet(new PrimerDark().getUserAgentStylesheet());
+        // Restore persisted theme setting
+        String savedTheme = SettingsDAO.getSetting("theme_mode");
+        if ("light".equals(savedTheme)) {
+            Application.setUserAgentStylesheet(new PrimerLight().getUserAgentStylesheet());
+            isDarkMode = false;
+        } else {
+            Application.setUserAgentStylesheet(new PrimerDark().getUserAgentStylesheet());
+            isDarkMode = true;
+        }
 
         this.primaryStage = stage;
         this.primaryStage.setTitle("Yo-WG Tunnel Manager");

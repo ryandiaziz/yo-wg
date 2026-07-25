@@ -52,6 +52,8 @@ public class MainController implements Initializable {
     @FXML
     private TextField searchField;
     @FXML
+    private Button btnClearSearch;
+    @FXML
     private Button btnAddAccess;
 
     @FXML
@@ -72,8 +74,20 @@ public class MainController implements Initializable {
         initializeWireguardList();
 
         searchField.textProperty().addListener((observable, oldValue, newValue) -> {
+            boolean hasText = newValue != null && !newValue.trim().isEmpty();
+            if (btnClearSearch != null) {
+                btnClearSearch.setVisible(hasText);
+                btnClearSearch.setManaged(hasText);
+            }
             filterWireguardList(newValue);
         });
+
+        if (btnClearSearch != null) {
+            btnClearSearch.setOnAction(e -> {
+                searchField.setText("");
+                searchField.requestFocus();
+            });
+        }
 
         btnConnectionToggle.setOnAction(this::handleConnectionToggle);
 
@@ -104,12 +118,7 @@ public class MainController implements Initializable {
 
     private void filterWireguardList(String query) {
         CompletableFuture.runAsync(() -> {
-            List<Wireguard> wireguards;
-            if (query == null || query.trim().isEmpty()) {
-                wireguards = WireguardDAO.getAllWireguards();
-            } else {
-                wireguards = WireguardDAO.findWireguardsByAccessName(query);
-            }
+            List<Wireguard> wireguards = WireguardDAO.searchWireguards(query);
             Platform.runLater(() -> {
                 populateWireguardList(wireguards);
                 if (selectedWireguardName != null) {
@@ -142,23 +151,50 @@ public class MainController implements Initializable {
             boolean isSelected = wireguard.getName().equals(selectedWireguardName);
 
             Label nameLabel = new Label(wireguard.getName());
-            nameLabel.setStyle("-fx-font-weight: bold;");
-            HBox.setHgrow(nameLabel, Priority.ALWAYS);
+
+            VBox labelBox = new VBox(2);
+            labelBox.getChildren().add(nameLabel);
+
+            String subText = wireguard.getTunnelAddress();
+            Label subLabel = null;
+            if (subText != null && !subText.trim().isEmpty()) {
+                subLabel = new Label(subText);
+                labelBox.getChildren().add(subLabel);
+            }
+            HBox.setHgrow(labelBox, Priority.ALWAYS);
 
             HBox graphicBox = new HBox(8);
             graphicBox.setAlignment(javafx.geometry.Pos.CENTER_LEFT);
-            graphicBox.getChildren().add(nameLabel);
+            graphicBox.getChildren().add(labelBox);
 
+            Label activeBadge = null;
             if (isActive) {
-                Label activeBadge = new Label("● Active");
-                activeBadge.setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: -color-success-fg;");
+                activeBadge = new Label("● Active");
                 graphicBox.getChildren().add(activeBadge);
+            }
+
+            if (isSelected) {
+                nameLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 13px; -fx-text-fill: white;");
+                if (subLabel != null) {
+                    subLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: rgba(255, 255, 255, 0.85);");
+                }
+                if (activeBadge != null) {
+                    activeBadge.setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: #a3e635;");
+                }
+            } else {
+                nameLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 13px; -fx-text-fill: -color-fg-default;");
+                if (subLabel != null) {
+                    subLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: -color-fg-muted;");
+                }
+                if (activeBadge != null) {
+                    activeBadge.setStyle("-fx-font-size: 11px; -fx-font-weight: bold; -fx-text-fill: -color-success-fg;");
+                }
             }
 
             Button itemButton = new Button();
             itemButton.setGraphic(graphicBox);
             itemButton.setMaxWidth(Double.MAX_VALUE);
-            itemButton.setPadding(new Insets(10, 15, 10, 15));
+            itemButton.setPadding(new Insets(8, 12, 8, 12));
             itemButton.setCursor(javafx.scene.Cursor.HAND);
 
             updateListItemStyle(itemButton, isSelected);

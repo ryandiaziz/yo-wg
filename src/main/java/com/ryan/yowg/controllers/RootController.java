@@ -158,12 +158,15 @@ public class RootController implements Initializable {
             activeWgStatusBox.setAlignment(Pos.CENTER);
 
             activeWgCard.setPadding(new Insets(6, 4, 6, 4));
-            activeWgCard.setPrefWidth(54);
-            activeWgCard.setMaxWidth(54);
+            activeWgCard.setMinWidth(50);
+            activeWgCard.setPrefWidth(50);
+            activeWgCard.setMaxWidth(50);
             activeWgCard.setAlignment(Pos.CENTER);
 
+            btnQuickDisconnect.setMinWidth(36);
             btnQuickDisconnect.setPrefWidth(36);
             btnQuickDisconnect.setMaxWidth(36);
+            btnQuickDisconnect.setPadding(new Insets(4, 4, 4, 4));
 
             collapseIcon.setContent("M8.59 16.59L10 18l6-6-6-6-1.41 1.41L13.17 12z"); // Expand right caret
         } else {
@@ -199,12 +202,15 @@ public class RootController implements Initializable {
             activeWgStatusBox.setAlignment(Pos.CENTER_LEFT);
 
             activeWgCard.setPadding(new Insets(10));
+            activeWgCard.setMinWidth(Region.USE_COMPUTED_SIZE);
             activeWgCard.setPrefWidth(Region.USE_COMPUTED_SIZE);
             activeWgCard.setMaxWidth(Double.MAX_VALUE);
             activeWgCard.setAlignment(Pos.TOP_LEFT);
 
+            btnQuickDisconnect.setMinWidth(Region.USE_COMPUTED_SIZE);
             btnQuickDisconnect.setPrefWidth(Region.USE_COMPUTED_SIZE);
             btnQuickDisconnect.setMaxWidth(Double.MAX_VALUE);
+            btnQuickDisconnect.setPadding(new Insets(6, 12, 6, 12));
 
             collapseIcon.setContent("M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"); // Collapse left caret
         }
@@ -215,6 +221,7 @@ public class RootController implements Initializable {
     private void handleThemeToggle(ActionEvent event) {
         mainApp.toggleTheme();
         updateThemeToggleBtn();
+        Platform.runLater(this::applySidebarLayout);
     }
 
     private void updateThemeToggleBtn() {
@@ -243,6 +250,10 @@ public class RootController implements Initializable {
                     powerIcon.setStyle("-fx-fill: white;");
                     btnQuickDisconnect.setGraphic(powerIcon);
                     btnQuickDisconnect.setTooltip(new Tooltip("Active: " + tunnelName + " (Click to Disconnect)"));
+                    btnQuickDisconnect.setMinWidth(36);
+                    btnQuickDisconnect.setPrefWidth(36);
+                    btnQuickDisconnect.setMaxWidth(36);
+                    btnQuickDisconnect.setPadding(new Insets(4, 4, 4, 4));
                 } else {
                     btnQuickDisconnect.setGraphic(null);
                     btnQuickDisconnect.setText("Disconnect");
