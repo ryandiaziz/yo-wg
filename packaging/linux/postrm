@@ -1,0 +1,16 @@
+#!/bin/sh
+set -e
+
+rm -f /usr/share/applications/yo-wg.desktop
+rm -f /usr/share/pixmaps/yo-wg.png
+rm -f /usr/share/icons/hicolor/512x512/apps/yo-wg.png
+
+if [ -x "$(command -v update-desktop-database)" ]; then
+    update-desktop-database -q /usr/share/applications || true
+fi
+
+if [ -x "$(command -v gtk-update-icon-cache)" ]; then
+    gtk-update-icon-cache -f -t /usr/share/icons/hicolor || true
+fi
+
+exit 0

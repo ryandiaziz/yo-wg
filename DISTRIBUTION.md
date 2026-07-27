@@ -8,7 +8,11 @@ Dokumen ini menjelaskan dua metode untuk mendistribusikan aplikasi **Yo-WG** kep
 
 ## 1. Distribusi Native (.deb) - Sangat Direkomendasikan
 
-Metode ini akan membungkus aplikasi beserta Java Runtime Environment (JRE) ke dalam installer native Debian/Ubuntu (`.deb`). Pengguna tidak perlu menginstall Java secara terpisah.
+Metode ini membungkus aplikasi beserta Java Runtime Environment (JRE) dan **ikon aplikasi resmi** ke dalam installer native Debian/Ubuntu (`.deb`). Pengguna tidak perlu menginstall Java secara terpisah.
+
+### Lokasi Ikon Aplikasi
+- File ikon aplikasi utama tersimpan di: `src/main/resources/com/ryan/yowg/icon.png`.
+- Ikon ini digunakan oleh `jpackage` (`--icon`) untuk membuat shortcut di menu aplikasi OS Linux (`.desktop`), serta oleh JavaFX `Stage.getIcons()` untuk titlebar window.
 
 ### Cara Membuat Paket (.deb)
 Jalankan script berikut dari root folder project:
@@ -23,7 +27,9 @@ Bagikan file `.deb` tersebut kepada pengguna, lalu mereka cukup menginstallnya d
 ```bash
 sudo dpkg -i dist/yo-wg_1.0.0_amd64.deb
 ```
-Aplikasi akan secara otomatis terinstall di `/opt/yo-wg/` dan icon shortcut akan muncul di menu aplikasi OS pengguna.
+*(Atau `sudo apt install ./dist/yo-wg_1.0.0_amd64.deb`)*
+
+Aplikasi akan secara otomatis terinstall di `/opt/yo-wg/` dan **shortcut aplikasi beserta ikon Yo-WG** akan langsung muncul di launcher/menu aplikasi OS pengguna.
 
 ---
 
@@ -38,14 +44,3 @@ Jalankan script berikut dari root folder project:
 ```
 
 **Hasil Akhir:** File ZIP akan digenerate dan disimpan di `dist/yo-wg-linux-installer.zip`.
-
-### Cara Install oleh Pengguna (Legacy)
-1. Extract file `yo-wg-linux-installer.zip`.
-2. Buka terminal di dalam folder hasil extract.
-3. Jalankan script installer:
-   ```bash
-   chmod +x install.sh
-   ./install.sh
-   ```
-4. Aplikasi akan di-copy ke folder `~/Program/yo-wg` dan shortcut desktop akan ditambahkan.
-5. **PENTING**: User harus mengedit `~/Program/yo-wg/conf/application.conf` untuk setup awal (jika menggunakan config kustom).

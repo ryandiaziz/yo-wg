@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Yo-WG
+Comment=WireGuard Manager by Ryan
+Exec=/opt/yo-wg/bin/yo-wg
+Icon=yo-wg
+Terminal=false
+Type=Application
+Categories=Network;Utility;
+StartupWMClass=com-ryan-yowg-Launcher

@@ -97,6 +97,12 @@ public class MainApp extends Application {
 
         this.primaryStage = stage;
         this.primaryStage.setTitle("Yo-WG Tunnel Manager");
+        try {
+            java.io.InputStream iconStream = MainApp.class.getResourceAsStream("icon.png");
+            if (iconStream != null) {
+                this.primaryStage.getIcons().add(new javafx.scene.image.Image(iconStream));
+            }
+        } catch (Exception ignored) {}
         this.primaryStage.setMinWidth(800);
         this.primaryStage.setMinHeight(600);
         this.primaryStage.setResizable(true);

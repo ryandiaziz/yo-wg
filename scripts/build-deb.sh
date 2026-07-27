@@ -29,6 +29,8 @@ jpackage \
   --main-jar yo-wg-1.0-SNAPSHOT-jar-with-dependencies.jar \
   --main-class com.ryan.yowg.Launcher \
   --type deb \
+  --icon src/main/resources/com/ryan/yowg/icon.png \
+  --resource-dir packaging/linux \
   --app-version 1.0.0 \
   --description "WireGuard Manager by Ryan" \
   --linux-shortcut \

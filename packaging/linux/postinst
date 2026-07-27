@@ -1,0 +1,30 @@
+#!/bin/sh
+set -e
+
+# Copy desktop launcher to /usr/share/applications/
+mkdir -p /usr/share/applications
+if [ -f /opt/yo-wg/lib/yo-wg-yo-wg.desktop ]; then
+    cp /opt/yo-wg/lib/yo-wg-yo-wg.desktop /usr/share/applications/yo-wg.desktop
+elif [ -f /opt/yo-wg/lib/yo-wg.desktop ]; then
+    cp /opt/yo-wg/lib/yo-wg.desktop /usr/share/applications/yo-wg.desktop
+fi
+
+# Copy application icon to system pixmaps and hicolor icon themes
+mkdir -p /usr/share/pixmaps
+mkdir -p /usr/share/icons/hicolor/512x512/apps
+
+if [ -f /opt/yo-wg/lib/yo-wg.png ]; then
+    cp /opt/yo-wg/lib/yo-wg.png /usr/share/pixmaps/yo-wg.png
+    cp /opt/yo-wg/lib/yo-wg.png /usr/share/icons/hicolor/512x512/apps/yo-wg.png
+fi
+
+# Update desktop and icon databases
+if [ -x "$(command -v update-desktop-database)" ]; then
+    update-desktop-database -q /usr/share/applications || true
+fi
+
+if [ -x "$(command -v gtk-update-icon-cache)" ]; then
+    gtk-update-icon-cache -f -t /usr/share/icons/hicolor || true
+fi
+
+exit 0
