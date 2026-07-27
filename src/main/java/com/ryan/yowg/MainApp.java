@@ -20,9 +20,12 @@ import com.ryan.yowg.models.Wireguard;
 import com.ryan.yowg.dao.DatabaseSetup;
 import com.ryan.yowg.models.Resource;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Modality;
@@ -30,6 +33,7 @@ import javafx.stage.Stage;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.Label;
+import javafx.scene.control.Separator;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ButtonBar;
 import javafx.scene.layout.VBox;
@@ -72,17 +76,7 @@ public class MainApp extends Application {
         // Setup database storage module
         repository.initialize();
 
-        // Auto-sync system WireGuard configs if application is opened for the first time
-        java.util.concurrent.CompletableFuture.runAsync(com.ryan.yowg.services.TunnelSyncService::syncIfFirstRun);
-
-        // Prompt for sudo password if not set
-
-        String sudoPassword = repository.getSetting("sudo_password");
-        if (sudoPassword == null || sudoPassword.trim().isEmpty()) {
-            promptSudoPassword();
-        }
-
-        // Restore persisted theme setting
+        // Restore persisted theme setting first so initial setup dialogs are styled correctly
         String savedTheme = SettingsDAO.getSetting("theme_mode");
         if ("light".equals(savedTheme)) {
             Application.setUserAgentStylesheet(new PrimerLight().getUserAgentStylesheet());
@@ -90,6 +84,15 @@ public class MainApp extends Application {
         } else {
             Application.setUserAgentStylesheet(new PrimerDark().getUserAgentStylesheet());
             isDarkMode = true;
+        }
+
+        // Auto-sync system WireGuard configs if application is opened for the first time
+        java.util.concurrent.CompletableFuture.runAsync(com.ryan.yowg.services.TunnelSyncService::syncIfFirstRun);
+
+        // Prompt for sudo password if not set
+        String sudoPassword = repository.getSetting("sudo_password");
+        if (sudoPassword == null || sudoPassword.trim().isEmpty()) {
+            promptSudoPassword();
         }
 
         this.primaryStage = stage;
@@ -387,26 +390,45 @@ public class MainApp extends Application {
     private void promptSudoPassword() {
         Dialog<String> dialog = new Dialog<>();
         dialog.setTitle("Initial Setup");
-        dialog.setHeaderText("Welcome to Yo-WG!\nPlease enter your system (sudo) password to allow WireGuard management.");
-        
+        dialog.getDialogPane().getStyleClass().add("dialog-pane");
+        dialog.getDialogPane().setPrefWidth(460);
+
+        Label titleLabel = new Label("Welcome to Yo-WG!");
+        titleLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: -color-accent-fg;");
+
+        Label subtitleLabel = new Label("Please enter your system (sudo) password to allow WireGuard tunnel management.");
+        subtitleLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: -color-fg-muted;");
+        subtitleLabel.setWrapText(true);
+
+        Label inputLabel = new Label("Sudo Password:");
+        inputLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 12px;");
+
         PasswordField pwd = new PasswordField();
-        pwd.setPromptText("Sudo Password");
-        
-        VBox vbox = new VBox(10);
-        vbox.getChildren().add(new Label("Sudo Password:"));
-        vbox.getChildren().add(pwd);
+        pwd.setPromptText("Enter sudo password");
+        pwd.setPrefHeight(36);
+
+        VBox vbox = new VBox(10, titleLabel, subtitleLabel, new Separator(), inputLabel, pwd);
+        vbox.setPadding(new Insets(15));
         dialog.getDialogPane().setContent(vbox);
-        
-        ButtonType saveButtonType = new ButtonType("Save", ButtonBar.ButtonData.OK_DONE);
+
+        ButtonType saveButtonType = new ButtonType("Save Password", ButtonBar.ButtonData.OK_DONE);
         dialog.getDialogPane().getButtonTypes().addAll(saveButtonType, ButtonType.CANCEL);
-        
+
+        Button saveButton = (Button) dialog.getDialogPane().lookupButton(saveButtonType);
+        if (saveButton != null) {
+            saveButton.getStyleClass().add("accent");
+            saveButton.setStyle("-fx-cursor: hand;");
+        }
+
+        Platform.runLater(pwd::requestFocus);
+
         dialog.setResultConverter(dialogButton -> {
             if (dialogButton == saveButtonType) {
                 return pwd.getText();
             }
             return null;
         });
-        
+
         Optional<String> result = dialog.showAndWait();
         result.ifPresent(password -> {
             SettingsDAO.saveSetting("sudo_password", password);
