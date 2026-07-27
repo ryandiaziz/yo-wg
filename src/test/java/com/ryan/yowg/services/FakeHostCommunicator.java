@@ -41,8 +41,15 @@ public class FakeHostCommunicator implements HostCommunicator {
         return java.util.concurrent.CompletableFuture.completedFuture(null);
     }
 
+    public boolean testAutologinResult = false;
+
     @Override
     public java.util.concurrent.CompletableFuture<Void> generateAndDeployKeyAsync(String profileName, String address, String username, int port, String password) {
         return java.util.concurrent.CompletableFuture.completedFuture(null);
+    }
+
+    @Override
+    public java.util.concurrent.CompletableFuture<Boolean> testSshAutologinAsync(com.ryan.yowg.models.Access access) {
+        return java.util.concurrent.CompletableFuture.completedFuture(testAutologinResult);
     }
 }

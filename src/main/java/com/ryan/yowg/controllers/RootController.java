@@ -53,6 +53,8 @@ public class RootController implements Initializable {
     @FXML
     private Button btnCredentials;
     @FXML
+    private Button btnSettings;
+    @FXML
     private Button btnThemeToggle;
     @FXML
     private VBox activeWgCard;
@@ -81,6 +83,7 @@ public class RootController implements Initializable {
         btnAccess.setOnAction(e -> mainApp.showAccessMenuPage());
         btnResources.setOnAction(e -> mainApp.showResourceMenuPage());
         btnCredentials.setOnAction(e -> mainApp.showCredentialMenuPage());
+        btnSettings.setOnAction(e -> mainApp.showSettingsPage());
         btnThemeToggle.setOnAction(this::handleThemeToggle);
         btnQuickDisconnect.setOnAction(this::handleQuickDisconnect);
         btnCollapse.setOnAction(e -> toggleSidebar());
@@ -92,6 +95,7 @@ public class RootController implements Initializable {
         setupHoverEffect(btnAccess);
         setupHoverEffect(btnResources);
         setupHoverEffect(btnCredentials);
+        setupHoverEffect(btnSettings);
         setupHoverEffect(btnThemeToggle);
 
         // Restore persisted sidebar collapsed state
@@ -142,6 +146,7 @@ public class RootController implements Initializable {
             btnAccess.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
             btnResources.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
             btnCredentials.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+            btnSettings.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
             btnThemeToggle.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
 
             btnDashboard.setAlignment(Pos.CENTER);
@@ -149,6 +154,7 @@ public class RootController implements Initializable {
             btnAccess.setAlignment(Pos.CENTER);
             btnResources.setAlignment(Pos.CENTER);
             btnCredentials.setAlignment(Pos.CENTER);
+            btnSettings.setAlignment(Pos.CENTER);
             btnThemeToggle.setAlignment(Pos.CENTER);
 
             lblActiveHeader.setVisible(false);
@@ -186,6 +192,7 @@ public class RootController implements Initializable {
             btnAccess.setContentDisplay(ContentDisplay.LEFT);
             btnResources.setContentDisplay(ContentDisplay.LEFT);
             btnCredentials.setContentDisplay(ContentDisplay.LEFT);
+            btnSettings.setContentDisplay(ContentDisplay.LEFT);
             btnThemeToggle.setContentDisplay(ContentDisplay.LEFT);
 
             btnDashboard.setAlignment(Pos.BASELINE_LEFT);
@@ -193,6 +200,7 @@ public class RootController implements Initializable {
             btnAccess.setAlignment(Pos.BASELINE_LEFT);
             btnResources.setAlignment(Pos.BASELINE_LEFT);
             btnCredentials.setAlignment(Pos.BASELINE_LEFT);
+            btnSettings.setAlignment(Pos.BASELINE_LEFT);
             btnThemeToggle.setAlignment(Pos.BASELINE_LEFT);
 
             lblActiveHeader.setVisible(true);

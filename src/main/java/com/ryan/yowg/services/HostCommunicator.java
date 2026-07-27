@@ -12,5 +12,6 @@ public interface HostCommunicator {
     boolean isSshpassInstalled();
     CompletableFuture<Void> deploySharedKeyAsync(Access access, String password);
     CompletableFuture<Void> generateAndDeployKeyAsync(String profileName, String address, String username, int port, String password);
+    CompletableFuture<Boolean> testSshAutologinAsync(Access access);
 }
 

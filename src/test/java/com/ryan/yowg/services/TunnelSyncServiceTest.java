@@ -11,6 +11,9 @@ public class TunnelSyncServiceTest {
 
     @BeforeAll
     public static void setup() {
+        String tempDb = System.getProperty("java.io.tmpdir") + "/yowg_test.db";
+        System.setProperty("yowg.db.url", "jdbc:sqlite:" + tempDb);
+        com.ryan.yowg.dao.DatabaseConnector.setTestDbUrl("jdbc:sqlite:" + tempDb);
         DatabaseSetup.createTable();
     }
 

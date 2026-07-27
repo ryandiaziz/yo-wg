@@ -123,7 +123,28 @@ public class AccessComp extends HBox {
                 keyButton.setTooltip(new Tooltip("SSH Key Autologin Active"));
             } else {
                 keyIcon.setStyle("-fx-fill: -color-fg-muted;");
-                keyButton.setTooltip(new Tooltip("Setup SSH Key Autologin"));
+                keyButton.setTooltip(new Tooltip("Checking SSH Key Autologin..."));
+
+                hostCommunicator.testSshAutologinAsync(access).thenAccept(canAutologin -> {
+                    Platform.runLater(() -> {
+                        if (Boolean.TRUE.equals(canAutologin)) {
+                            keyIcon.setStyle("-fx-fill: -color-success-fg;");
+                            keyButton.setTooltip(new Tooltip("SSH Key Autologin Active (Auto-detected)"));
+
+                            List<Credential> allCreds = CredentialDAO.getAllCredentials();
+                            for (Credential c : allCreds) {
+                                if ("Shared Yo-WG Key".equals(c.getName())) {
+                                    access.setCredentialId(c.getId());
+                                    AccessDAO.updateAccess(access);
+                                    break;
+                                }
+                            }
+                        } else {
+                            keyIcon.setStyle("-fx-fill: -color-fg-muted;");
+                            keyButton.setTooltip(new Tooltip("Setup SSH Key Autologin"));
+                        }
+                    });
+                });
             }
         };
         updateKeyButtonStyle.run();

@@ -255,5 +255,55 @@ public class SystemHostCommunicator implements HostCommunicator {
             }
         });
     }
+
+    @Override
+    public CompletableFuture<Boolean> testSshAutologinAsync(Access access) {
+        return CompletableFuture.supplyAsync(() -> {
+            if (access == null || access.getAddress() == null || access.getAddress().trim().isEmpty()) {
+                return false;
+            }
+
+            String user = access.getSshUser() != null && !access.getSshUser().trim().isEmpty() ? access.getSshUser() : "administrator";
+            int port = access.getSshPort() > 0 ? access.getSshPort() : 22;
+
+            List<String> command = new java.util.ArrayList<>();
+            command.add("ssh");
+            command.add("-o");
+            command.add("BatchMode=yes");
+            command.add("-o");
+            command.add("ConnectTimeout=3");
+            command.add("-o");
+            command.add("StrictHostKeyChecking=no");
+            command.add("-p");
+            command.add(String.valueOf(port));
+
+            if (access.getCredentialId() != null) {
+                Credential credential = CredentialDAO.getCredentialById(access.getCredentialId());
+                if (credential != null && "key".equals(credential.getType()) && credential.getSecret() != null && !credential.getSecret().trim().isEmpty()) {
+                    command.add("-i");
+                    command.add(credential.getSecret());
+                }
+            } else {
+                String home = System.getProperty("user.home");
+                File sharedKey = new File(home + "/.ssh/yo-wg/id_yowg_shared");
+                if (sharedKey.exists()) {
+                    command.add("-i");
+                    command.add(sharedKey.getAbsolutePath());
+                }
+            }
+
+            command.add(user + "@" + access.getAddress());
+            command.add("true");
+
+            try {
+                ProcessBuilder builder = new ProcessBuilder(command);
+                Process process = builder.start();
+                int exitCode = process.waitFor();
+                return exitCode == 0;
+            } catch (Exception e) {
+                return false;
+            }
+        });
+    }
 }
 

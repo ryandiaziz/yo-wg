@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.ryan.yowg.controllers.SettingsController">
+   <children>
+      <VBox spacing="15.0" AnchorPane.bottomAnchor="15.0" AnchorPane.leftAnchor="15.0" AnchorPane.rightAnchor="15.0" AnchorPane.topAnchor="15.0">
+         <children>
+            <!-- Top Controls -->
+            <HBox alignment="CENTER_LEFT" spacing="10.0">
+               <children>
+                  <Label text="Settings &amp; Maintenance" style="-fx-font-size: 18px; -fx-font-weight: bold;" HBox.hgrow="ALWAYS" maxWidth="1.7976931348623157E308" />
+                  <Button fx:id="btnHome" mnemonicParsing="false" text="Dashboard" styleClass="flat" style="-fx-cursor: hand;" />
+               </children>
+            </HBox>
+
+            <!-- Main Settings Content Area -->
+            <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" styleClass="edge-to-edge">
+               <content>
+                  <VBox spacing="20.0">
+                     <padding>
+                        <Insets bottom="15.0" left="2.0" right="2.0" top="5.0" />
+                     </padding>
+                     <children>
+                        <!-- Card 1: System Sudo Password & Configuration -->
+                        <VBox spacing="12.0" style="-fx-background-color: -color-bg-default; -fx-border-color: -color-border-default; -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 15;">
+                           <children>
+                              <Label text="System Configuration" style="-fx-font-size: 15px; -fx-font-weight: bold;" />
+                              <Separator />
+
+                              <!-- Sudo Password Setting -->
+                              <VBox spacing="6.0">
+                                 <children>
+                                    <Label text="Sudo Password (Required for WireGuard system management)" style="-fx-font-weight: bold; -fx-font-size: 12px;" />
+                                    <HBox spacing="10.0" alignment="CENTER_LEFT">
+                                       <children>
+                                          <PasswordField fx:id="sudoPasswordField" promptText="Enter system sudo password" HBox.hgrow="ALWAYS" prefHeight="35.0" />
+                                          <Button fx:id="btnSaveSudoPassword" mnemonicParsing="false" text="Save Sudo Password" styleClass="accent" prefHeight="35.0" style="-fx-cursor: hand;" />
+                                       </children>
+                                    </HBox>
+                                    <Label fx:id="lblSudoStatus" text="" style="-fx-font-size: 11px; -fx-text-fill: -color-success-fg;" />
+                                 </children>
+                              </VBox>
+
+                              <!-- Dynamic Settings Table/Container -->
+                              <VBox spacing="6.0">
+                                 <children>
+                                    <Label text="All App Configuration Entries (settings table)" style="-fx-font-weight: bold; -fx-font-size: 12px; -fx-padding: 10 0 0 0;" />
+                                    <VBox fx:id="settingsEntriesContainer" spacing="8.0" />
+                                 </children>
+                              </VBox>
+                           </children>
+                        </VBox>
+
+                        <!-- Card 2: Data Cleanup (Pembersihan Data) -->
+                        <VBox spacing="12.0" style="-fx-background-color: -color-bg-default; -fx-border-color: -color-danger-muted; -fx-border-radius: 8; -fx-background-radius: 8; -fx-padding: 15;">
+                           <children>
+                              <Label text="Pembersihan Data (Data Cleanup)" style="-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: -color-danger-fg;" />
+                              <Label text="Pilih data yang ingin dibersihkan dari aplikasi. Tindakan pembersihan ini tidak dapat dibatalkan." style="-fx-font-size: 12px; -fx-text-fill: -color-fg-muted;" wrapText="true" />
+                              <Separator />
+
+                              <!-- Cleanup Options Checkboxes -->
+                              <VBox spacing="10.0">
+                                 <children>
+                                    <CheckBox fx:id="chkCredentials" text="SSH Credentials &amp; Local SSH Keys (~/.ssh/yo-wg/)" style="-fx-font-weight: bold;" />
+                                    <Label text="Menghapus semua kredensial SSH dari database dan file kunci publik/privat lokal yang dibuat oleh Yo-WG." style="-fx-font-size: 11px; -fx-text-fill: -color-fg-muted; -fx-padding: 0 0 0 25;" />
+
+                                    <CheckBox fx:id="chkAccessResources" text="Access Nodes &amp; Associated Resources" style="-fx-font-weight: bold;" />
+                                    <Label text="Menghapus semua target server Access Node dan daftar URL Resource terkait." style="-fx-font-size: 11px; -fx-text-fill: -color-fg-muted; -fx-padding: 0 0 0 25;" />
+
+                                    <CheckBox fx:id="chkWireguards" text="WireGuard Tunnels (Database)" style="-fx-font-weight: bold;" />
+                                    <Label text="Menghapus semua profil tunnel WireGuard dari database aplikasi." style="-fx-font-size: 11px; -fx-text-fill: -color-fg-muted; -fx-padding: 0 0 0 25;" />
+
+                                    <CheckBox fx:id="chkSystemConfigs" text="Hapus File Konfigurasi /etc/wireguard/*.conf (Opsional Sudo System)" style="-fx-font-weight: bold; -fx-text-fill: -color-warning-fg;" />
+                                    <Label text="Juga menghapus file konfigurasi .conf dari direktori sistem /etc/wireguard/." style="-fx-font-size: 11px; -fx-text-fill: -color-fg-muted; -fx-padding: 0 0 0 25;" />
+
+                                    <CheckBox fx:id="chkAppSettings" text="Application Settings &amp; Preferences" style="-fx-font-weight: bold;" />
+                                    <Label text="Menghapus pengaturan aplikasi (theme mode, initial sync flag, dsb)." style="-fx-font-size: 11px; -fx-text-fill: -color-fg-muted; -fx-padding: 0 0 0 25;" />
+                                 </children>
+                              </VBox>
+
+                              <Separator />
+
+                              <!-- Cleanup Action Buttons -->
+                              <HBox spacing="12.0" alignment="CENTER_RIGHT">
+                                 <children>
+                                    <Button fx:id="btnCleanSelected" mnemonicParsing="false" text="Clean Selected Data" styleClass="danger" style="-fx-cursor: hand;" />
+                                    <Button fx:id="btnFactoryReset" mnemonicParsing="false" text="Factory Reset (Clear All Data)" styleClass="danger" style="-fx-cursor: hand; -fx-font-weight: bold;" />
+                                 </children>
+                              </HBox>
+                           </children>
+                        </VBox>
+                     </children>
+                  </VBox>
+               </content>
+            </ScrollPane>
+         </children>
+      </VBox>
+   </children>
+</AnchorPane>

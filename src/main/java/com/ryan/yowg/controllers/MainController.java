@@ -15,6 +15,7 @@ import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
@@ -24,6 +25,7 @@ import javafx.scene.layout.VBox;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.concurrent.CompletableFuture;
@@ -134,11 +136,20 @@ public class MainController implements Initializable {
             String activeName = tunnelManager.getActiveTunnelName();
             Platform.runLater(() -> {
                 if (selectedWireguardName == null && activeName != null) {
-                    selectedWireguardName = activeName;
+                    boolean activeExistsInDb = wireguards.stream().anyMatch(w -> w.getName().equals(activeName));
+                    if (activeExistsInDb) {
+                        selectedWireguardName = activeName;
+                    } else if (!wireguards.isEmpty()) {
+                        selectedWireguardName = wireguards.get(0).getName();
+                    } else {
+                        selectedWireguardName = null;
+                    }
                 }
                 populateWireguardList(wireguards);
                 if (selectedWireguardName != null) {
                     loadWireguardDetails(selectedWireguardName);
+                } else {
+                    updateConnectionStateUI();
                 }
             });
         });
@@ -146,6 +157,25 @@ public class MainController implements Initializable {
 
     private void populateWireguardList(List<Wireguard> wireguards) {
         listWGContainer.getChildren().clear();
+
+        if (wireguards == null || wireguards.isEmpty()) {
+            VBox emptyBox = new VBox(8);
+            emptyBox.setAlignment(javafx.geometry.Pos.CENTER);
+            emptyBox.setPadding(new Insets(30, 15, 30, 15));
+
+            Label emptyLabel = new Label("No WireGuard Tunnels Found");
+            emptyLabel.setStyle("-fx-text-fill: -color-fg-muted; -fx-font-size: 13px; -fx-font-weight: bold;");
+
+            Label subLabel = new Label("Click 'Wireguards' in sidebar to add or import a tunnel.");
+            subLabel.setStyle("-fx-text-fill: -color-fg-muted; -fx-font-size: 11px; -fx-text-alignment: center;");
+            subLabel.setWrapText(true);
+
+            emptyBox.getChildren().addAll(emptyLabel, subLabel);
+            listWGContainer.getChildren().add(emptyBox);
+            updateConnectionStateUI();
+            return;
+        }
+
         for (Wireguard wireguard : wireguards) {
             boolean isActive = tunnelManager.isTunnelActive(wireguard.getName());
             boolean isSelected = wireguard.getName().equals(selectedWireguardName);
@@ -223,19 +253,46 @@ public class MainController implements Initializable {
         if (selectedWireguardName == null) return;
 
         boolean willConnect = btnConnectionToggle.isSelected();
-        if (willConnect) {
-            tunnelManager.up(selectedWireguardName);
-        } else {
-            tunnelManager.down(selectedWireguardName);
-        }
-        updateConnectionStateUI();
+        String targetTunnel = selectedWireguardName;
+
+        btnConnectionToggle.setDisable(true);
+        ProgressIndicator spinner = new ProgressIndicator();
+        spinner.setMaxSize(14, 14);
+        spinner.setStyle("-fx-progress-color: white;");
+        btnConnectionToggle.setGraphic(spinner);
+        btnConnectionToggle.setText(willConnect ? "Connecting..." : "Disconnecting...");
+
+        CompletableFuture.runAsync(() -> {
+            if (willConnect) {
+                tunnelManager.up(targetTunnel);
+            } else {
+                tunnelManager.down(targetTunnel);
+            }
+        }).whenComplete((res, ex) -> {
+            Platform.runLater(() -> {
+                btnConnectionToggle.setDisable(false);
+                btnConnectionToggle.setGraphic(null);
+                if (ex != null) {
+                    ex.printStackTrace();
+                }
+                updateConnectionStateUI();
+                filterWireguardList(searchField != null ? searchField.getText() : "");
+            });
+        });
     }
 
     private void loadWireguardDetails(String wireguardName) {
+        showAccessLoadingState();
+
         CompletableFuture.runAsync(() -> {
             Wireguard wireguard = WireguardDAO.findWireguardByName(wireguardName);
-            if (wireguard == null)
+            if (wireguard == null) {
+                Platform.runLater(() -> {
+                    updateAccessContainer(Collections.emptyList());
+                    updateConnectionStateUI();
+                });
                 return;
+            }
 
             List<Access> accessList = AccessDAO.getAccessByWireguard(wireguard.getId());
             Platform.runLater(() -> {
@@ -251,6 +308,20 @@ public class MainController implements Initializable {
                 updateConnectionStateUI();
             });
         });
+    }
+
+    private void showAccessLoadingState() {
+        ProgressIndicator spinner = new ProgressIndicator();
+        spinner.setMaxSize(20, 20);
+
+        Label loadingLabel = new Label("Loading Access Servers...");
+        loadingLabel.setStyle("-fx-text-fill: -color-fg-muted; -fx-font-size: 12px;");
+
+        HBox loadingBox = new HBox(8, spinner, loadingLabel);
+        loadingBox.setAlignment(javafx.geometry.Pos.CENTER);
+        loadingBox.setPadding(new Insets(20));
+
+        accessContainer.getChildren().setAll(loadingBox);
     }
 
     private void updateConnectionStateUI() {
@@ -289,6 +360,22 @@ public class MainController implements Initializable {
     }
 
     private void updateAccessContainer(List<Access> accessList) {
+        if (accessList == null || accessList.isEmpty()) {
+            VBox emptyBox = new VBox(8);
+            emptyBox.setAlignment(javafx.geometry.Pos.CENTER);
+            emptyBox.setPadding(new Insets(30, 20, 30, 20));
+
+            Label emptyLabel = new Label("No Access Servers Found");
+            emptyLabel.setStyle("-fx-text-fill: -color-fg-muted; -fx-font-size: 13px; -fx-font-weight: bold;");
+
+            Label subLabel = new Label("Click '+ Add Access' above to register an Access Server for this tunnel.");
+            subLabel.setStyle("-fx-text-fill: -color-fg-muted; -fx-font-size: 11px;");
+
+            emptyBox.getChildren().addAll(emptyLabel, subLabel);
+            accessContainer.getChildren().setAll(emptyBox);
+            return;
+        }
+
         List<AccessComp> accessCompList = new ArrayList<>();
         for (int i = 0; i < accessList.size(); i++) {
             Access access = accessList.get(i);

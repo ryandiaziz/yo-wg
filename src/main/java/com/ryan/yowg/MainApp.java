@@ -182,6 +182,19 @@ public class MainApp extends Application {
         }
     }
 
+    public void showSettingsPage() {
+        try {
+            com.ryan.yowg.controllers.SettingsController settingsController = new com.ryan.yowg.controllers.SettingsController(this);
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(MainApp.class.getResource("views/settings-view.fxml"));
+            loader.setControllerFactory(param -> settingsController);
+            Parent mainPage = loader.load();
+            rootLayout.setCenter(mainPage);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public void showAddCredentialPage() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("views/add-credential-view.fxml"));

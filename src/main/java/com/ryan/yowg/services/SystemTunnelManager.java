@@ -53,6 +53,10 @@ public class SystemTunnelManager implements TunnelManager {
 
     @Override
     public String getActiveTunnelName() {
+        if (activeTunnelName != null && new File("/sys/class/net/" + activeTunnelName).exists()) {
+            return activeTunnelName;
+        }
+
         String sudoPassword = SettingsDAO.getSetting("sudo_password");
         if (sudoPassword != null && !sudoPassword.trim().isEmpty()) {
             try {
@@ -82,29 +86,17 @@ public class SystemTunnelManager implements TunnelManager {
             return false;
         }
 
-        String sudoPassword = SettingsDAO.getSetting("sudo_password");
-        if (sudoPassword != null && !sudoPassword.trim().isEmpty()) {
-            try {
-                String command = "echo " + sudoPassword + " | sudo -S wg show " + name;
-                ProcessBuilder builder = new ProcessBuilder("/bin/bash", "-c", command);
-                Process process = builder.start();
-                int exitCode = process.waitFor();
-                if (exitCode == 0) {
-                    activeTunnelName = name;
-                    return true;
-                }
-            } catch (Exception e) {
-                // Fallback check
-            }
-        }
-
         File sysNet = new File("/sys/class/net/" + name);
         if (sysNet.exists()) {
             activeTunnelName = name;
             return true;
         }
 
-        return name.equals(activeTunnelName);
+        if (name.equals(activeTunnelName)) {
+            activeTunnelName = null;
+        }
+
+        return false;
     }
 
     @Override

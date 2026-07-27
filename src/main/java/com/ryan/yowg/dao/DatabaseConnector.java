@@ -33,11 +33,28 @@ public class DatabaseConnector {
         }
     }
 
+    private static String testDbUrl = null;
+
+    public static void setTestDbUrl(String url) {
+        testDbUrl = url;
+    }
+
+    public static String getUrl() {
+        if (testDbUrl != null) {
+            return testDbUrl;
+        }
+        String customUrl = System.getProperty("yowg.db.url");
+        if (customUrl != null && !customUrl.trim().isEmpty()) {
+            return customUrl;
+        }
+        return URL;
+    }
+
     public static Connection connect() {
         Connection connection = null;
         try {
-            connection = DriverManager.getConnection(URL);
-            System.out.println("Connection to SQLite has been established at " + NEW_DB_PATH);
+            connection = DriverManager.getConnection(getUrl());
+            System.out.println("Connection to SQLite has been established at " + getUrl());
         } catch (SQLException e) {
             System.out.println("Error connecting to SQLite: " + e.getMessage());
         }
