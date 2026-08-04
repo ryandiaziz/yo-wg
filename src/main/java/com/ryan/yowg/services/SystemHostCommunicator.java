@@ -4,8 +4,8 @@ import com.ryan.yowg.dao.AccessDAO;
 import com.ryan.yowg.dao.CredentialDAO;
 import com.ryan.yowg.models.Access;
 import com.ryan.yowg.models.Credential;
+import com.ryan.yowg.components.TerminalPanelComp;
 import javafx.application.Platform;
-import javafx.scene.control.Alert;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -16,6 +16,24 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class SystemHostCommunicator implements HostCommunicator {
+
+    private TerminalPanelComp terminalPanel;
+    private Runnable onTerminalShowRequest;
+
+    /**
+     * Set the built-in terminal panel for SSH/Ping operations.
+     */
+    public void setTerminalPanel(TerminalPanelComp terminalPanel) {
+        this.terminalPanel = terminalPanel;
+    }
+
+    /**
+     * Set a callback that will be invoked to show the terminal panel
+     * (e.g., RootController::showTerminalPanel).
+     */
+    public void setOnTerminalShowRequest(Runnable callback) {
+        this.onTerminalShowRequest = callback;
+    }
 
     @Override
     public boolean isSshpassInstalled() {
@@ -29,42 +47,56 @@ public class SystemHostCommunicator implements HostCommunicator {
 
     @Override
     public void openSSHTerminal(String address, String user, int port, String credentialType, String credentialSecret) {
-        try {
-            String sshCommand;
-            if (credentialType != null && credentialType.equals("key") && credentialSecret != null && !credentialSecret.trim().isEmpty()) {
-                sshCommand = "ssh -i \"" + credentialSecret + "\" -p " + port + " " + user + "@" + address;
-            } else if (credentialType != null && credentialType.equals("password") && credentialSecret != null && !credentialSecret.trim().isEmpty()) {
-                if (isSshpassInstalled()) {
-                    sshCommand = "sshpass -p \"" + credentialSecret + "\" ssh -p " + port + " " + user + "@" + address;
+        if (terminalPanel != null) {
+            Platform.runLater(() -> {
+                // Show terminal panel if hidden
+                if (onTerminalShowRequest != null) {
+                    onTerminalShowRequest.run();
+                }
+                terminalPanel.addSshTerminal(address, user, port, credentialType, credentialSecret);
+            });
+        } else {
+            // Fallback to external terminal if terminal panel not available
+            try {
+                String sshCommand;
+                if (credentialType != null && credentialType.equals("key") && credentialSecret != null && !credentialSecret.trim().isEmpty()) {
+                    sshCommand = "ssh -i \"" + credentialSecret + "\" -p " + port + " " + user + "@" + address;
+                } else if (credentialType != null && credentialType.equals("password") && credentialSecret != null && !credentialSecret.trim().isEmpty()) {
+                    if (isSshpassInstalled()) {
+                        sshCommand = "sshpass -p \"" + credentialSecret + "\" ssh -p " + port + " " + user + "@" + address;
+                    } else {
+                        sshCommand = "ssh -p " + port + " " + user + "@" + address;
+                    }
                 } else {
                     sshCommand = "ssh -p " + port + " " + user + "@" + address;
-                    Platform.runLater(() -> {
-                        Alert alert = new Alert(Alert.AlertType.WARNING);
-                        alert.setTitle("sshpass Not Found");
-                        alert.setHeaderText("SSH Password Automation Warning");
-                        alert.setContentText("The command 'sshpass' is not installed on your system. Automated login will not work.\n\nTo enable automated password login, please install it:\n\nsudo apt install sshpass\n\nLaunching standard SSH terminal now.");
-                        alert.showAndWait();
-                    });
                 }
-            } else {
-                sshCommand = "ssh -p " + port + " " + user + "@" + address;
+                String[] cmd = { "gnome-terminal", "--", "bash", "-c", sshCommand + "; exec bash" };
+                Runtime.getRuntime().exec(cmd);
+            } catch (IOException e) {
+                System.err.println("Failed to open SSH terminal: " + e.getMessage());
             }
-
-            String[] cmd = { "gnome-terminal", "--", "bash", "-c", sshCommand + "; exec bash" };
-            Runtime.getRuntime().exec(cmd);
-        } catch (IOException e) {
-            System.err.println("Failed to open SSH terminal: " + e.getMessage());
         }
     }
 
     @Override
     public void openPingTerminal(String address) {
-        try {
-            String pingCommand = "ping " + address;
-            String[] cmd = { "gnome-terminal", "--", "bash", "-c", pingCommand + "; exec bash" };
-            Runtime.getRuntime().exec(cmd);
-        } catch (IOException e) {
-            System.err.println("Failed to open Ping terminal: " + e.getMessage());
+        if (terminalPanel != null) {
+            Platform.runLater(() -> {
+                // Show terminal panel if hidden
+                if (onTerminalShowRequest != null) {
+                    onTerminalShowRequest.run();
+                }
+                terminalPanel.addPingTerminal(address);
+            });
+        } else {
+            // Fallback to external terminal
+            try {
+                String pingCommand = "ping " + address;
+                String[] cmd = { "gnome-terminal", "--", "bash", "-c", pingCommand + "; exec bash" };
+                Runtime.getRuntime().exec(cmd);
+            } catch (IOException e) {
+                System.err.println("Failed to open Ping terminal: " + e.getMessage());
+            }
         }
     }
 

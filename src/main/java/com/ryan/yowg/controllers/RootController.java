@@ -1,6 +1,7 @@
 package com.ryan.yowg.controllers;
 
 import com.ryan.yowg.MainApp;
+import com.ryan.yowg.components.TerminalPanelComp;
 import com.ryan.yowg.dao.SettingsDAO;
 import com.ryan.yowg.services.TunnelManager;
 import javafx.application.Platform;
@@ -8,14 +9,19 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
 import javafx.scene.control.Separator;
+import javafx.scene.control.SplitPane;
 import javafx.scene.control.Tooltip;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.SVGPath;
 
@@ -55,6 +61,8 @@ public class RootController implements Initializable {
     @FXML
     private Button btnSettings;
     @FXML
+    private Button btnTerminal;
+    @FXML
     private Button btnThemeToggle;
     @FXML
     private VBox activeWgCard;
@@ -71,6 +79,13 @@ public class RootController implements Initializable {
 
     private boolean isCollapsed = false;
 
+    // --- Terminal Panel ---
+    private TerminalPanelComp terminalPanel;
+    private SplitPane splitPane;
+    private StackPane contentWrapper;
+    private boolean terminalVisible = false;
+    private double lastDividerPosition = 0.7;
+
     public RootController(MainApp mainApp, TunnelManager tunnelManager) {
         this.mainApp = mainApp;
         this.tunnelManager = tunnelManager;
@@ -84,6 +99,7 @@ public class RootController implements Initializable {
         btnResources.setOnAction(e -> mainApp.showResourceMenuPage());
         btnCredentials.setOnAction(e -> mainApp.showCredentialMenuPage());
         btnSettings.setOnAction(e -> mainApp.showSettingsPage());
+        btnTerminal.setOnAction(e -> handleTerminalToggle());
         btnThemeToggle.setOnAction(this::handleThemeToggle);
         btnQuickDisconnect.setOnAction(this::handleQuickDisconnect);
         btnCollapse.setOnAction(e -> toggleSidebar());
@@ -96,7 +112,11 @@ public class RootController implements Initializable {
         setupHoverEffect(btnResources);
         setupHoverEffect(btnCredentials);
         setupHoverEffect(btnSettings);
+        setupHoverEffect(btnTerminal);
         setupHoverEffect(btnThemeToggle);
+
+        // Initialize terminal panel
+        initTerminalPanel();
 
         // Restore persisted sidebar collapsed state
         String savedState = SettingsDAO.getSetting("sidebar_collapsed");
@@ -113,6 +133,145 @@ public class RootController implements Initializable {
 
         // Initial state sync
         updateTunnelStatus(tunnelManager.getActiveTunnelName(), tunnelManager.getActiveTunnelName() != null);
+    }
+
+    /**
+     * Initialize the terminal panel and set up the SplitPane.
+     * The BorderPane's center content gets wrapped in a SplitPane so the
+     * terminal panel can appear below it.
+     */
+    private void initTerminalPanel() {
+        terminalPanel = new TerminalPanelComp();
+        terminalPanel.setDarkMode(mainApp.isDarkMode());
+
+        // The SplitPane and content wrapper are set up when the root layout is ready
+        Platform.runLater(() -> {
+            BorderPane rootPane = (BorderPane) sidebar.getScene().getRoot();
+
+            // Wrap existing center content in a StackPane
+            contentWrapper = new StackPane();
+            Node currentCenter = rootPane.getCenter();
+            if (currentCenter != null) {
+                contentWrapper.getChildren().add(currentCenter);
+            }
+
+            // Create vertical SplitPane with content + terminal
+            splitPane = new SplitPane();
+            splitPane.setOrientation(Orientation.VERTICAL);
+            splitPane.getItems().add(contentWrapper);
+
+            // Set the SplitPane as the new center
+            rootPane.setCenter(splitPane);
+
+            // Configure terminal panel callbacks
+            terminalPanel.setOnHideRequest(this::hideTerminalPanel);
+            terminalPanel.setOnFullscreenToggle(this::handleTerminalFullscreen);
+
+            // Store reference in MainApp
+            mainApp.setTerminalPanel(terminalPanel);
+            mainApp.setSplitPane(splitPane);
+            mainApp.setContentWrapper(contentWrapper);
+
+            btnTerminal.setTooltip(new Tooltip("Terminal (Ctrl+`)"));
+
+            // Register VS Code terminal shortcut: Ctrl + ` (backtick)
+            if (sidebar.getScene() != null) {
+                sidebar.getScene().addEventFilter(javafx.scene.input.KeyEvent.KEY_PRESSED, event -> {
+                    if (event.isControlDown() && (event.getCode() == javafx.scene.input.KeyCode.BACK_QUOTE || "`".equals(event.getText()))) {
+                        handleTerminalToggle();
+                        event.consume();
+                    }
+                });
+            }
+
+            // Wire up SystemHostCommunicator to use built-in terminal
+            if (mainApp.getHostCommunicator() instanceof com.ryan.yowg.services.SystemHostCommunicator shc) {
+                shc.setTerminalPanel(terminalPanel);
+                shc.setOnTerminalShowRequest(this::showTerminalPanel);
+            }
+        });
+    }
+
+    /**
+     * Show the terminal panel in the SplitPane.
+     */
+    public void showTerminalPanel() {
+        if (terminalVisible || splitPane == null) return;
+
+        splitPane.getItems().add(terminalPanel);
+        splitPane.setDividerPosition(0, lastDividerPosition);
+        terminalVisible = true;
+
+        // If no tabs, auto-open a local terminal
+        if (!terminalPanel.hasTabs()) {
+            terminalPanel.addLocalTerminal();
+        }
+    }
+
+    /**
+     * Hide the terminal panel from the SplitPane.
+     */
+    public void hideTerminalPanel() {
+        if (!terminalVisible || splitPane == null) return;
+
+        // If fullscreen, restore first
+        if (terminalPanel.isFullscreen()) {
+            terminalPanel.toggleFullscreen();
+        }
+
+        // Save divider position for next show
+        if (splitPane.getDividers().size() > 0) {
+            lastDividerPosition = splitPane.getDividerPositions()[0];
+        }
+
+        splitPane.getItems().remove(terminalPanel);
+        terminalVisible = false;
+    }
+
+    /**
+     * Handle fullscreen toggle: in fullscreen mode, hide the content wrapper
+     * so the terminal takes up the entire center area.
+     */
+    private void handleTerminalFullscreen() {
+        if (splitPane == null) return;
+
+        if (terminalPanel.isFullscreen()) {
+            // Enter fullscreen: remove content wrapper, terminal takes full area
+            if (splitPane.getItems().contains(contentWrapper)) {
+                splitPane.getItems().remove(contentWrapper);
+            }
+        } else {
+            // Exit fullscreen: restore content wrapper above terminal
+            if (!splitPane.getItems().contains(contentWrapper)) {
+                splitPane.getItems().add(0, contentWrapper);
+                splitPane.setDividerPosition(0, lastDividerPosition);
+            }
+        }
+    }
+
+    /**
+     * Toggle terminal panel visibility from the sidebar button.
+     */
+    private void handleTerminalToggle() {
+        if (terminalVisible) {
+            hideTerminalPanel();
+        } else {
+            showTerminalPanel();
+        }
+    }
+
+    /**
+     * Get the terminal panel component.
+     */
+    public TerminalPanelComp getTerminalPanel() {
+        return terminalPanel;
+    }
+
+    /**
+     * Returns true if terminal panel is currently visible.
+     */
+    public boolean isTerminalVisible() {
+        return terminalVisible;
     }
 
     private void setupHoverEffect(Button button) {
@@ -147,6 +306,7 @@ public class RootController implements Initializable {
             btnResources.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
             btnCredentials.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
             btnSettings.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+            btnTerminal.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
             btnThemeToggle.setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
 
             btnDashboard.setAlignment(Pos.CENTER);
@@ -155,6 +315,7 @@ public class RootController implements Initializable {
             btnResources.setAlignment(Pos.CENTER);
             btnCredentials.setAlignment(Pos.CENTER);
             btnSettings.setAlignment(Pos.CENTER);
+            btnTerminal.setAlignment(Pos.CENTER);
             btnThemeToggle.setAlignment(Pos.CENTER);
 
             lblActiveHeader.setVisible(false);
@@ -193,6 +354,7 @@ public class RootController implements Initializable {
             btnResources.setContentDisplay(ContentDisplay.LEFT);
             btnCredentials.setContentDisplay(ContentDisplay.LEFT);
             btnSettings.setContentDisplay(ContentDisplay.LEFT);
+            btnTerminal.setContentDisplay(ContentDisplay.LEFT);
             btnThemeToggle.setContentDisplay(ContentDisplay.LEFT);
 
             btnDashboard.setAlignment(Pos.BASELINE_LEFT);
@@ -201,6 +363,7 @@ public class RootController implements Initializable {
             btnResources.setAlignment(Pos.BASELINE_LEFT);
             btnCredentials.setAlignment(Pos.BASELINE_LEFT);
             btnSettings.setAlignment(Pos.BASELINE_LEFT);
+            btnTerminal.setAlignment(Pos.BASELINE_LEFT);
             btnThemeToggle.setAlignment(Pos.BASELINE_LEFT);
 
             lblActiveHeader.setVisible(true);
@@ -229,6 +392,9 @@ public class RootController implements Initializable {
     private void handleThemeToggle(ActionEvent event) {
         mainApp.toggleTheme();
         updateThemeToggleBtn();
+        if (terminalPanel != null) {
+            terminalPanel.setDarkMode(mainApp.isDarkMode());
+        }
         Platform.runLater(this::applySidebarLayout);
     }
 

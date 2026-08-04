@@ -17,7 +17,6 @@ import com.ryan.yowg.services.SystemTunnelManager;
 import com.ryan.yowg.services.HostCommunicator;
 import com.ryan.yowg.services.SystemHostCommunicator;
 import com.ryan.yowg.models.Wireguard;
-import com.ryan.yowg.dao.DatabaseSetup;
 import com.ryan.yowg.models.Resource;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -39,8 +38,11 @@ import javafx.scene.control.ButtonBar;
 import javafx.scene.layout.VBox;
 import java.util.Optional;
 import com.ryan.yowg.dao.SettingsDAO;
+import com.ryan.yowg.components.TerminalPanelComp;
 import atlantafx.base.theme.PrimerDark;
 import atlantafx.base.theme.PrimerLight;
+import javafx.scene.control.SplitPane;
+import javafx.scene.layout.StackPane;
 
 public class MainApp extends Application {
     private Stage primaryStage;
@@ -51,6 +53,15 @@ public class MainApp extends Application {
     private final com.ryan.yowg.dao.Repository repository = new com.ryan.yowg.dao.SqliteRepository();
 
     private boolean isDarkMode = true;
+
+    // Terminal panel support
+    private TerminalPanelComp terminalPanel;
+    private SplitPane splitPane;
+    private StackPane contentWrapper;
+
+    public HostCommunicator getHostCommunicator() {
+        return hostCommunicator;
+    }
 
     public Stage getPrimaryStage() {
         return primaryStage;
@@ -133,7 +144,7 @@ public class MainApp extends Application {
             loader.setLocation(MainApp.class.getResource("views/main-view.fxml"));
             loader.setControllerFactory(param -> new MainController(this, tunnelManager, hostCommunicator));
             Parent mainPage = loader.load();
-            rootLayout.setCenter(mainPage);
+            setCenterContent(mainPage);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -146,7 +157,7 @@ public class MainApp extends Application {
             loader.setLocation(MainApp.class.getResource("views/access-view.fxml"));
             loader.setControllerFactory(param -> accessController);
             AnchorPane mainPage = loader.load();
-            rootLayout.setCenter(mainPage);
+            setCenterContent(mainPage);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -159,7 +170,7 @@ public class MainApp extends Application {
             loader.setLocation(MainApp.class.getResource("views/resource-view.fxml"));
             loader.setControllerFactory(param -> resourceController);
             AnchorPane mainPage = loader.load();
-            rootLayout.setCenter(mainPage);
+            setCenterContent(mainPage);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -172,7 +183,7 @@ public class MainApp extends Application {
             loader.setLocation(MainApp.class.getResource("views/wireguards-view.fxml"));
             loader.setControllerFactory(param -> wireguardController);
             AnchorPane mainPage = loader.load();
-            rootLayout.setCenter(mainPage);
+            setCenterContent(mainPage);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -185,7 +196,7 @@ public class MainApp extends Application {
             loader.setLocation(MainApp.class.getResource("views/credentials-view.fxml"));
             loader.setControllerFactory(param -> credentialController);
             AnchorPane mainPage = loader.load();
-            rootLayout.setCenter(mainPage);
+            setCenterContent(mainPage);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -198,7 +209,7 @@ public class MainApp extends Application {
             loader.setLocation(MainApp.class.getResource("views/settings-view.fxml"));
             loader.setControllerFactory(param -> settingsController);
             Parent mainPage = loader.load();
-            rootLayout.setCenter(mainPage);
+            setCenterContent(mainPage);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -443,5 +454,51 @@ public class MainApp extends Application {
 
     public static void main(String[] args) {
         launch();
+    }
+
+    @Override
+    public void stop() {
+        // Cleanup terminal processes on app exit
+        if (terminalPanel != null) {
+            terminalPanel.closeAllTabs();
+        }
+    }
+
+    // --- Terminal Panel Support ---
+
+    /**
+     * Route content to the contentWrapper (inside SplitPane) if available,
+     * otherwise fallback to rootLayout.setCenter().
+     */
+    private void setCenterContent(javafx.scene.Node content) {
+        if (contentWrapper != null) {
+            contentWrapper.getChildren().setAll(content);
+        } else {
+            rootLayout.setCenter(content);
+        }
+    }
+
+    public TerminalPanelComp getTerminalPanel() {
+        return terminalPanel;
+    }
+
+    public void setTerminalPanel(TerminalPanelComp terminalPanel) {
+        this.terminalPanel = terminalPanel;
+    }
+
+    public SplitPane getSplitPane() {
+        return splitPane;
+    }
+
+    public void setSplitPane(SplitPane splitPane) {
+        this.splitPane = splitPane;
+    }
+
+    public StackPane getContentWrapper() {
+        return contentWrapper;
+    }
+
+    public void setContentWrapper(StackPane contentWrapper) {
+        this.contentWrapper = contentWrapper;
     }
 }

@@ -1,18 +1,11 @@
 package com.ryan.yowg.controllers;
 
 import com.ryan.yowg.MainApp;
-import com.ryan.yowg.dao.AccessDAO;
-import com.ryan.yowg.dao.CredentialDAO;
 import com.ryan.yowg.dao.DatabaseConnector;
-import com.ryan.yowg.dao.ResourceDAO;
 import com.ryan.yowg.dao.SettingsDAO;
-import com.ryan.yowg.dao.WireguardDAO;
-import com.ryan.yowg.models.Credential;
-import com.ryan.yowg.models.Wireguard;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
